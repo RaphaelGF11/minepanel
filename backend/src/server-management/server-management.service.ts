@@ -77,9 +77,6 @@ export class ServerManagementService {
   private readonly SERVERS_DIR: string;
   private readonly BASE_DIR: string;
   private readonly COMPOSE_PROJECT?: string;
-  private static readonly ANSI_ESCAPE_SEQUENCE_REGEX =
-    // Adapted from common ANSI escape matching patterns (CSI + OSC + related control sequences).
-    /[\u001B\u009B][[\]()#;?]*(?:(?:(?:[a-zA-Z\d]*(?:;[a-zA-Z\d]*)*)?\u0007)|(?:(?:\d{1,4}(?:;\d{0,4})*)?[\dA-PR-TZcf-nq-uy=><~]))/g;
 
   constructor(
     private readonly configService: ConfigService,
@@ -168,17 +165,83 @@ export class ServerManagementService {
   }
 
   private stripAnsiEscapeSequences(text: string): string {
-    return text.replace(ServerManagementService.ANSI_ESCAPE_SEQUENCE_REGEX, '');
+    let result = '';
+
+    for (let index = 0; index < text.length; index++) {
+      const currentChar = text[index];
+      const currentCode = text.charCodeAt(index);
+
+      if (currentCode === 0x1b) {
+        const nextChar = text[index + 1];
+
+        // CSI sequence: ESC[
+        if (nextChar === '[') {
+          index += 2;
+          while (index < text.length) {
+            const code = text.charCodeAt(index);
+            // Final byte of CSI is in 0x40-0x7E.
+            if (code >= 0x40 && code <= 0x7e) {
+              break;
+            }
+            index++;
+          }
+          continue;
+        }
+
+        // OSC sequence: ESC]
+        if (nextChar === ']') {
+          index += 2;
+          while (index < text.length) {
+            const code = text.charCodeAt(index);
+            // BEL terminator.
+            if (code === 0x07) {
+              break;
+            }
+            // ST terminator (ESC \).
+            if (code === 0x1b && text[index + 1] === '\\') {
+              index++;
+              break;
+            }
+            index++;
+          }
+          continue;
+        }
+
+        // Generic ESC sequence: skip introducer + next byte.
+        if (index + 1 < text.length) {
+          index++;
+        }
+        continue;
+      }
+
+      result += currentChar;
+    }
+
+    return result;
+  }
+
+  private removeControlCharacters(text: string): string {
+    let sanitized = '';
+
+    for (const char of text) {
+      const code = char.charCodeAt(0);
+      const isControl = (code >= 0x00 && code <= 0x1f) || (code >= 0x7f && code <= 0x9f);
+      if (!isControl) {
+        sanitized += char;
+      }
+    }
+
+    return sanitized;
   }
 
   private normalizeCommandInput(command: string): string {
     const commandWithoutAnsi = this.stripAnsiEscapeSequences(command);
-    return commandWithoutAnsi.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim();
+    return this.removeControlCharacters(commandWithoutAnsi).trim();
   }
 
   private sanitizeCommandOutput(output: string): string {
     const withoutAnsi = this.stripAnsiEscapeSequences(output);
-    return withoutAnsi.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+    return this.removeControlCharacters(withoutAnsi);
   }
 
   private tokenizeRconCommand(command: string): string[] {
