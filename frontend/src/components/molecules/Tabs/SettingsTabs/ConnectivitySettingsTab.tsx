@@ -57,12 +57,10 @@ export const ConnectivitySettingsTab: FC<ConnectivitySettingsTabProps> = ({
             <Image src="/images/ender-pearl.webp" alt="Conectividad" width={20} height={20} />
             {t('connectivitySettings')}
           </h3>
-          <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
-            <a href={LINK_CONNECTIVITY_SETTINGS} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              {t('documentation')}
-            </a>
-          </Button>
+          <a href={LINK_CONNECTIVITY_SETTINGS} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <BookOpen className="h-4 w-4" />
+            {t('documentation')}
+          </a>
         </div>
 
         <div className="space-y-4">

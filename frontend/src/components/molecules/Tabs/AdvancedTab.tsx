@@ -75,12 +75,10 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ config, updateConfig }) => {
             </CardTitle>
             <CardDescription className="text-gray-300">{t('advancedConfigDesc')}</CardDescription>
           </div>
-          <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
-            <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              {t('documentation')}
-            </a>
-          </Button>
+          <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <BookOpen className="h-4 w-4" />
+            {t('documentation')}
+          </a>
         </div>
       </CardHeader>
 
@@ -95,12 +93,10 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ config, updateConfig }) => {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
-                <a href={LINK_BACKUPS_SETTINGS} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  {t('documentation')}
-                </a>
-              </Button>
+              <a href={LINK_BACKUPS_SETTINGS} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                <BookOpen className="h-4 w-4" />
+                {t('documentation')}
+              </a>
 
               <div className="flex items-center gap-2">
                 <span className="text-gray-300 text-sm">{t('enableBackup')}</span>

@@ -4,7 +4,6 @@ import { ServerConfig } from "@/lib/types/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/lib/hooks/useLanguage";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 import { MemoryCpuTab } from "./ResourcesTabs/MemoryCpuTab";
 import { JvmOptionsTab } from "./ResourcesTabs/JvmOptionsTab";
@@ -30,12 +29,10 @@ export const ResourcesTab: FC<ResourcesTabProps> = ({ config, updateConfig }) =>
             </CardTitle>
             <CardDescription className="text-gray-300">{t("serverResourcesDesc")}</CardDescription>
           </div>
-          <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
-            <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              {t("documentation")}
-            </a>
-          </Button>
+          <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <BookOpen className="h-4 w-4" />
+            {t("documentation")}
+          </a>
         </div>
       </CardHeader>
 
