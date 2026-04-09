@@ -748,6 +748,7 @@ export class DockerComposeService {
     await fs.ensureDir(serverPath);
     const mcDataPath = path.join(serverPath, 'mc-data');
     await fs.ensureDir(mcDataPath);
+    await fs.ensureDir(path.join(mcDataPath, 'worlds'));
 
     if (serverExists) {
       this.logger.log(`Server directory "${id}" already exists, checking for uploaded data...`);
