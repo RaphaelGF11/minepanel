@@ -318,6 +318,13 @@ With Slug method, the version **never updates automatically**. You must manually
 
 Useful for modpacks downloaded manually or custom modpacks.
 
+### World source conflict with Worlds tab
+
+For `AUTO_CURSEFORGE`, `CF_SET_LEVEL_FROM` and the Java **Worlds** tab are alternative world-source mechanisms.
+
+- If you use the **Worlds** tab (`WORLD`/`LEVEL`), Minepanel clears `CF_SET_LEVEL_FROM`.
+- If you need modpack-provided world data (`WORLD_FILE` or `OVERRIDES`), keep using `CF_SET_LEVEL_FROM` and do not select an external world source.
+
 ### Browse Modpacks
 
 Minepanel includes a **Browse** button to search CurseForge modpacks directly from the UI. Click it to find and select modpacks without leaving the panel.

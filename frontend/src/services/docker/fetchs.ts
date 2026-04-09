@@ -1,4 +1,4 @@
-import { ServerConfig, ServerListItem } from "@/lib/types/types";
+import { AvailableWorld, ServerConfig, ServerListItem } from "@/lib/types/types";
 import api from "../axios.service";
 
 export const fetchServerConfig = async (serverId: string): Promise<ServerConfig> => {
@@ -18,6 +18,19 @@ export const createServer = async (data: Partial<ServerConfig>): Promise<{ succe
 
 export const updateServerConfig = async (serverId: string, config: Partial<ServerConfig>): Promise<ServerConfig> => {
   const response = await api.put(`/servers/${serverId}`, config);
+  return response.data;
+};
+
+export const getServerWorlds = async (serverId: string): Promise<AvailableWorld[]> => {
+  const response = await api.get(`/servers/${serverId}/worlds`);
+  return response.data;
+};
+
+export const selectServerWorld = async (
+  serverId: string,
+  payload: { worldSource: string; worldLevelName: string; forceWorldCopy: boolean; restartIfRunning?: boolean },
+): Promise<{ success: boolean; restarted: boolean; config: ServerConfig }> => {
+  const response = await api.put(`/servers/${serverId}/worlds/select`, payload);
   return response.data;
 };
 

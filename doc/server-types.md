@@ -131,6 +131,19 @@ Command output appears in server logs, not as a direct response. Check the Logs 
 
 ## Java Edition
 
+### World Sources (Folders/ZIP/TAR)
+
+Minepanel includes a **Worlds** tab for Java servers to switch world sources using `WORLD`, `LEVEL`, and `FORCE_WORLD_COPY` from `itzg/docker-minecraft-server`.
+
+- Store world sources in each server folder: `servers/<server-id>/mc-data/worlds/`
+- Supported sources:
+  - Folder containing `level.dat`
+  - Archive files: `.zip`, `.tar`, `.tar.gz`, `.tgz`
+- The panel checks if the target level was already copied by looking for:
+  `servers/<server-id>/mc-data/<LEVEL>/level.dat`
+
+When a world is selected from the Worlds tab, Minepanel updates compose config and restarts the server automatically if it is running.
+
 ### Vanilla
 
 Basic Minecraft server without mods or plugins.

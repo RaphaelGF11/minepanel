@@ -1354,6 +1354,28 @@ export const de: Record<TranslationKey, string> = {
   serverPortV6Desc: 'Port für IPv6-Verbindungen. Leer lassen zum Deaktivieren.',
   serverPortV6Help: 'Optional. Einstellen, wenn dein Server IPv6-Verbindungen unterstützt.',
 
+  // Worlds tab
+  worlds: 'Welten',
+  worldsDescription: 'Weltquelle aus mc-data/worlds wählen und mit automatischem Neustart wechseln.',
+  worldsLoadError: 'Fehler beim Laden verfügbarer Welten',
+  worldsEmpty: 'Keine Welten gefunden. Lade einen Ordner (mit level.dat) oder ZIP/TAR nach mc-data/worlds hoch.',
+  worldsRestartNoticeRunning: 'Der Server läuft. Beim Anwenden wird der Server automatisch neu gestartet.',
+  worldsRestartNoticeStopped: 'Der Server ist gestoppt. Die ausgewählte Welt wird beim nächsten Start angewendet.',
+  worldTypeFolder: 'Ordner',
+  worldTypeArchive: 'Archiv',
+  worldCopied: 'Kopiert',
+  worldNotCopied: 'Nicht kopiert',
+  worldLevelName: 'Level-Name (LEVEL)',
+  worldSelectRequired: 'Wähle zuerst eine Weltquelle',
+  worldLevelNameRequired: 'Level-Name ist erforderlich',
+  worldApplyError: 'Weltauswahl konnte nicht angewendet werden',
+  worldApplied: 'Weltauswahl gespeichert',
+  worldAppliedAndRestarted: 'Weltauswahl gespeichert und Server neu gestartet',
+  forceWorldCopy: 'Weltkopie erzwingen',
+  forceWorldCopyDescription: 'Ziel-Level bei jedem Start überschreiben (FORCE_WORLD_COPY=TRUE).',
+  applyWorldAndRestart: 'Weltauswahl anwenden',
+  selected: 'Ausgewählt',
+
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Überleben',
   bedrockSurvivalDesc: 'Klassisches Überleben für Mobil- und Konsolenspieler.',

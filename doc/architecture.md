@@ -95,6 +95,7 @@ minepanel/
 └── servers/
     ├── server-1/
     │   ├── mc-data/      # World, plugins, mods
+    │   │   └── worlds/   # World sources (folders, zip, tar)
     │   └── backups/
     └── server-2/
 ```

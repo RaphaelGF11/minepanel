@@ -296,7 +296,7 @@ export class ServerManagementController {
     const availableWorlds = await this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName);
     const selectedWorld = availableWorlds.find((world) => world.source === body.worldSource);
     if (!selectedWorld) {
-      throw new BadRequestException('Selected world source was not found in BASE_DIR/worlds');
+      throw new BadRequestException('Selected world source was not found in server mc-data/worlds folder');
     }
 
     const user = req.user as PayloadToken;

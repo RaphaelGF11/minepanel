@@ -1359,6 +1359,28 @@ export const nl: Record<TranslationKey, string> = {
   serverPortV6Desc: 'Poort voor IPv6 verbindingen. Laat leeg om uit te schakelen.',
   serverPortV6Help: 'Optioneel. Stel in als je server IPv6 verbindingen ondersteunt.',
 
+  // Worlds tab
+  worlds: 'Werelden',
+  worldsDescription: 'Selecteer een wereldbron uit mc-data/worlds en wissel met automatische herstart.',
+  worldsLoadError: 'Fout bij laden van beschikbare werelden',
+  worldsEmpty: 'Geen werelden gevonden. Upload een map (met level.dat) of ZIP/TAR naar mc-data/worlds.',
+  worldsRestartNoticeRunning: 'De server draait. Toepassen van een wereld herstart de server automatisch.',
+  worldsRestartNoticeStopped: 'De server is gestopt. De geselecteerde wereld wordt toegepast bij de volgende start.',
+  worldTypeFolder: 'Map',
+  worldTypeArchive: 'Archief',
+  worldCopied: 'Gekopieerd',
+  worldNotCopied: 'Niet gekopieerd',
+  worldLevelName: 'Levelnaam (LEVEL)',
+  worldSelectRequired: 'Selecteer eerst een wereldbron',
+  worldLevelNameRequired: 'Levelnaam is verplicht',
+  worldApplyError: 'Kon wereldselectie niet toepassen',
+  worldApplied: 'Wereldselectie opgeslagen',
+  worldAppliedAndRestarted: 'Wereldselectie opgeslagen en server herstart',
+  forceWorldCopy: 'Wereldkopie forceren',
+  forceWorldCopyDescription: 'Doelniveau bij elke start overschrijven (FORCE_WORLD_COPY=TRUE).',
+  applyWorldAndRestart: 'Wereldselectie toepassen',
+  selected: 'Geselecteerd',
+
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Survival',
   bedrockSurvivalDesc: 'Klassieke survival voor mobiele en console spelers.',

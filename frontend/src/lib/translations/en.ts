@@ -1325,6 +1325,28 @@ export const en = {
   serverPortV6Desc: 'Port for IPv6 connections. Leave empty to disable.',
   serverPortV6Help: 'Optional. Set if your server supports IPv6 connections.',
 
+  // Worlds tab
+  worlds: 'Worlds',
+  worldsDescription: 'Select a world source from mc-data/worlds and switch with automatic restart.',
+  worldsLoadError: 'Error loading available worlds',
+  worldsEmpty: 'No worlds found. Upload a folder (with level.dat) or ZIP/TAR into mc-data/worlds from the file browser.',
+  worldsRestartNoticeRunning: 'The server is running. Applying a world will restart the server automatically.',
+  worldsRestartNoticeStopped: 'The server is stopped. The selected world will apply on the next start.',
+  worldTypeFolder: 'Folder',
+  worldTypeArchive: 'Archive',
+  worldCopied: 'Copied',
+  worldNotCopied: 'Not copied',
+  worldLevelName: 'Level name (LEVEL)',
+  worldSelectRequired: 'Select a world source first',
+  worldLevelNameRequired: 'Level name is required',
+  worldApplyError: 'Could not apply world selection',
+  worldApplied: 'World selection saved',
+  worldAppliedAndRestarted: 'World selection saved and server restarted',
+  forceWorldCopy: 'Force world copy',
+  forceWorldCopyDescription: 'Overwrite the target level on each start (FORCE_WORLD_COPY=TRUE).',
+  applyWorldAndRestart: 'Apply world selection',
+  selected: 'Selected',
+
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Survival',
   bedrockSurvivalDesc: 'Classic survival for mobile and console players.',

@@ -115,8 +115,8 @@ export class ServerManagementService {
     return path.join(this.SERVERS_DIR, serverId, 'mc-data');
   }
 
-  private getWorldsPath(): string {
-    return path.join(this.BASE_DIR, 'worlds');
+  private getWorldsPath(serverId: string): string {
+    return path.join(this.getMcDataPath(serverId), 'worlds');
   }
 
   private sanitizeLevelName(input: string): string {
@@ -168,7 +168,7 @@ export class ServerManagementService {
       return [];
     }
 
-    const worldsPath = this.getWorldsPath();
+    const worldsPath = this.getWorldsPath(serverId);
     await fs.ensureDir(worldsPath);
 
     const entries = await fs.readdir(worldsPath);

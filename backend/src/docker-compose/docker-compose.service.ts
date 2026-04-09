@@ -1089,7 +1089,7 @@ export class DockerComposeService {
     const edition = config.edition ?? 'JAVA';
     const hasWorldsMount = volumes.some((volume) => this.isWorldsMount(volume));
     if (edition === 'JAVA' && !hasWorldsMount) {
-      volumes.push(`${path.join(this.BASE_DIR, 'worlds')}:/worlds:ro`);
+      volumes.push(`${path.join(this.BASE_DIR, 'servers', config.id, 'mc-data', 'worlds')}:/worlds:ro`);
     }
 
     return volumes;

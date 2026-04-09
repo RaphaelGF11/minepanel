@@ -40,6 +40,29 @@ docker compose restart
 
 ## Installation Issues
 
+### Worlds tab does not show my world
+
+**Symptoms:** Worlds list is empty or missing entries.
+
+**Checklist:**
+
+1. Upload world sources to `servers/<server-id>/mc-data/worlds/`
+2. Supported formats:
+   - Folder containing `level.dat`
+   - `.zip`, `.tar`, `.tar.gz`, `.tgz`
+3. If the world is inside nested folders, ensure one of them contains `level.dat`
+
+### World switch applied but server starts old world
+
+**Symptoms:** You select a world, restart, but old level remains.
+
+**Cause:** By default, `WORLD` only copies if target level doesn't exist.
+
+**Solution:**
+
+- Enable **Force world copy** in the Worlds tab (`FORCE_WORLD_COPY=TRUE`)
+- Or choose a different `LEVEL` name so a new target folder is created
+
 ### Docker Not Found
 
 **Error:** `docker: command not found` or `docker compose: command not found`

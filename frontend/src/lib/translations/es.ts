@@ -1347,6 +1347,28 @@ export const es: Record<TranslationKey, string> = {
   serverPortV6Desc: 'Puerto para conexiones IPv6. Deja vacío para deshabilitar.',
   serverPortV6Help: 'Opcional. Configura si tu servidor soporta conexiones IPv6.',
 
+  // Pestaña de mundos
+  worlds: 'Mundos',
+  worldsDescription: 'Selecciona un origen de mundo desde mc-data/worlds y cambia con reinicio automático.',
+  worldsLoadError: 'Error cargando mundos disponibles',
+  worldsEmpty: 'No se encontraron mundos. Sube una carpeta (con level.dat) o ZIP/TAR a mc-data/worlds desde el explorador de archivos.',
+  worldsRestartNoticeRunning: 'El servidor está en ejecución. Al aplicar un mundo se reiniciará automáticamente.',
+  worldsRestartNoticeStopped: 'El servidor está detenido. El mundo seleccionado se aplicará en el próximo inicio.',
+  worldTypeFolder: 'Carpeta',
+  worldTypeArchive: 'Archivo',
+  worldCopied: 'Copiado',
+  worldNotCopied: 'No copiado',
+  worldLevelName: 'Nombre de nivel (LEVEL)',
+  worldSelectRequired: 'Primero selecciona un origen de mundo',
+  worldLevelNameRequired: 'El nombre de nivel es obligatorio',
+  worldApplyError: 'No se pudo aplicar la selección de mundo',
+  worldApplied: 'Selección de mundo guardada',
+  worldAppliedAndRestarted: 'Selección de mundo guardada y servidor reiniciado',
+  forceWorldCopy: 'Forzar copia del mundo',
+  forceWorldCopyDescription: 'Sobrescribe el nivel de destino en cada inicio (FORCE_WORLD_COPY=TRUE).',
+  applyWorldAndRestart: 'Aplicar selección de mundo',
+  selected: 'Seleccionado',
+
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Supervivencia',
   bedrockSurvivalDesc: 'Supervivencia clásica para jugadores móviles y de consola.',
