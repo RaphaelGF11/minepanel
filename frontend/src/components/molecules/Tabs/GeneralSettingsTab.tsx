@@ -10,12 +10,14 @@ import { PerformanceSettingsTab } from "./SettingsTabs/PerformanceSettingsTab";
 import { ConnectivitySettingsTab } from "./SettingsTabs/ConnectivitySettingsTab";
 
 interface GeneralSettingsTabProps {
+  serverId: string;
+  serverStatus: string;
   config: ServerConfig;
   updateConfig: <K extends keyof ServerConfig>(field: K, value: ServerConfig[K]) => void;
   disabled?: boolean;
 }
 
-export const GeneralSettingsTab: FC<GeneralSettingsTabProps> = ({ config, updateConfig, disabled = false }) => {
+export const GeneralSettingsTab: FC<GeneralSettingsTabProps> = ({ serverId, serverStatus, config, updateConfig, disabled = false }) => {
   const { t } = useLanguage();
 
   return (
@@ -56,7 +58,7 @@ export const GeneralSettingsTab: FC<GeneralSettingsTabProps> = ({ config, update
           </TabsContent>
 
           <TabsContent value="world" className="space-y-6 text-gray-200">
-            <WorldSettingsTab config={config} updateConfig={updateConfig} />
+            <WorldSettingsTab serverId={serverId} serverStatus={serverStatus} config={config} updateConfig={updateConfig} />
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-6 text-gray-200">

@@ -7,13 +7,16 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { FormField } from "@/components/ui/form-field";
 import { useLanguage } from "@/lib/hooks/useLanguage";
 import Image from "next/image";
+import { WorldsTab } from "../WorldsTab";
 
 interface WorldSettingsTabProps {
+  serverId: string;
+  serverStatus: string;
   config: ServerConfig;
   updateConfig: <K extends keyof ServerConfig>(field: K, value: ServerConfig[K]) => void;
 }
 
-export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ config, updateConfig }) => {
+export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ serverId, serverStatus, config, updateConfig }) => {
   const { t } = useLanguage();
   const isJava = config.edition !== "BEDROCK";
 
@@ -200,6 +203,8 @@ export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ config, updateConf
         </AccordionItem>
       </Accordion>
       )}
+
+      {isJava && <WorldsTab serverId={serverId} serverStatus={serverStatus} config={config} updateConfig={updateConfig} />}
     </div>
   );
 };

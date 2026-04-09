@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ServerConfig } from "@/lib/types/types";
 import { SaveModeControl } from "../molecules/SaveModeControl";
-import { Settings, Server, Cpu, Package, Terminal, ScrollText, Code, Layers, FolderOpen, Smartphone, Globe } from "lucide-react";
+import { Settings, Server, Cpu, Package, Terminal, ScrollText, Code, Layers, FolderOpen, Smartphone } from "lucide-react";
 import { useLanguage } from "@/lib/hooks/useLanguage";
 
 const LogsTab = dynamic(() => import("../molecules/Tabs/LogsTab").then(mod => mod.LogsTab));
@@ -16,7 +16,6 @@ const GeneralSettingsTab = dynamic(() => import("../molecules/Tabs/GeneralSettin
 const ServerTypeTab = dynamic(() => import("../molecules/Tabs/ServerTypeTab").then(mod => mod.ServerTypeTab));
 const BedrockSettingsTab = dynamic(() => import("../molecules/Tabs/BedrockSettingsTab").then(mod => mod.BedrockSettingsTab));
 const FilesTab = dynamic(() => import("../molecules/Tabs/FilesTab").then(mod => mod.FilesTab));
-const WorldsTab = dynamic(() => import("../molecules/Tabs/WorldsTab").then(mod => mod.WorldsTab));
 
 interface ServerConfigTabsProps {
   readonly serverId: string;
@@ -42,7 +41,7 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
   const getInitialTab = () => {
     if (typeof window === "undefined") return "type";
     const hash = window.location.hash.slice(1);
-    const validTabs = ["type", "general", "resources", "bedrock", "mods", "plugins", "worlds", "advanced", "logs", "commands", "files"];
+    const validTabs = ["type", "general", "resources", "bedrock", "mods", "plugins", "advanced", "logs", "commands", "files"];
     return validTabs.includes(hash) ? hash : "type";
   };
 
@@ -76,7 +75,7 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
-      const validTabs = ["type", "general", "resources", "bedrock", "mods", "plugins", "worlds", "advanced", "logs", "commands", "files"];
+      const validTabs = ["type", "general", "resources", "bedrock", "mods", "plugins", "advanced", "logs", "commands", "files"];
       if (validTabs.includes(hash)) {
         setActiveTab(hash);
       }
@@ -180,13 +179,6 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
                       <span className="hidden md:inline">{t("advanced")}</span>
                     </TabsTrigger>
 
-                  {isJava && (
-                    <TabsTrigger value="worlds" className="flex text-gray-200 items-center gap-1 py-2 px-2 md:px-3 data-[state=active]:bg-emerald-600/20 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 font-minecraft text-xs md:text-sm whitespace-nowrap">
-                      <Globe className="h-4 w-4 shrink-0" />
-                      <span className="hidden md:inline">{t("worlds")}</span>
-                    </TabsTrigger>
-                  )}
-
                   <TabsTrigger value="logs" className="flex text-gray-200 items-center gap-1 py-2 px-2 md:px-3 data-[state=active]:bg-emerald-600/20 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 font-minecraft text-xs md:text-sm whitespace-nowrap">
                     <ScrollText className="h-4 w-4 shrink-0" />
                     <span className="hidden md:inline">{t("logs")}</span>
@@ -215,7 +207,7 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
               </TabsContent>
 
               <TabsContent value="general" className="space-y-4 mt-0">
-                <GeneralSettingsTab config={config} updateConfig={updateConfig} />
+                <GeneralSettingsTab serverId={serverId} serverStatus={serverStatus} config={config} updateConfig={updateConfig} />
               </TabsContent>
 
               {showResourcesTab && (
@@ -245,12 +237,6 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
               <TabsContent value="advanced" className="space-y-4 mt-0">
                 <AdvancedTab config={config} updateConfig={updateConfig} />
               </TabsContent>
-
-              {isJava && (
-                <TabsContent value="worlds" className="space-y-4 mt-0">
-                  <WorldsTab serverId={serverId} serverStatus={serverStatus} config={config} updateConfig={updateConfig} />
-                </TabsContent>
-              )}
 
               <TabsContent value="logs" className="space-y-4 mt-0">
                 <LogsTab serverId={serverId} rconPort={config.rconPort} rconPassword={config.rconPassword} serverStatus={serverStatus} />
