@@ -119,7 +119,7 @@ export class DockerComposeService {
         serverType: env.TYPE ?? 'VANILLA',
 
         serverName: env.SERVER_NAME ?? 'Minecraft Server',
-        motd: env.MOTD ?? 'Un servidor de Minecraft increíble',
+        motd: env.MOTD ?? 'An incredible Minecraft server',
         port: port,
         difficulty: env.DIFFICULTY ?? 'hard',
         maxPlayers: env.MAX_PLAYERS ?? '10',
@@ -483,7 +483,7 @@ export class DockerComposeService {
       serverType: 'VANILLA',
 
       serverName: id,
-      motd: 'Un servidor de Minecraft increíble',
+      motd: 'An incredible Minecraft server',
       port: strategy.getDefaultPort(),
       difficulty: 'hard',
       maxPlayers: '10',

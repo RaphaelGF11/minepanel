@@ -60,6 +60,12 @@ describe('DockerComposeService', () => {
   });
 
   describe('generateDockerComposeFile', () => {
+    it('should use english default motd for new servers', () => {
+      const config = (service as any).createDefaultConfig('survival');
+
+      expect(config.motd).toBe('An incredible Minecraft server');
+    });
+
     it('should generate mc service without container_name', async () => {
       const config = (service as any).createDefaultConfig('survival');
 
