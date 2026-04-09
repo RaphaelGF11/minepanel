@@ -4,3 +4,5 @@ export const LINK_DOCUMENTATION = `${LINK}/configuration.html`;
 export const LINK_LEARN_HOW_LAN = `${LINK}/networking.html#how-to-get-your-lan-ip`;
 export const LINK_FORGOT_PASSWORD = `${LINK}/administration.html#forgot-your-password`;
 export const LINK_MODS_PLUGINS = `${LINK}/mods-plugins.html`;
+export const LINK_WORLD_SETTINGS = `${LINK}/server-types.html#world-sources-folders-zip-tar`;
+export const LINK_CONNECTIVITY_SETTINGS = `${LINK}/networking.html`;

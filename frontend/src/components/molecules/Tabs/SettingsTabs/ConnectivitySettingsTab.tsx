@@ -19,10 +19,11 @@ import {
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { AlertCircle, HelpCircle, Network, Info } from 'lucide-react';
+import { AlertCircle, HelpCircle, Network, Info, BookOpen } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { getProxyStatus } from '@/services/network.service';
+import { LINK_CONNECTIVITY_SETTINGS } from '@/lib/providers/constants';
 
 interface ConnectivitySettingsTabProps {
   config: ServerConfig;
@@ -51,10 +52,18 @@ export const ConnectivitySettingsTab: FC<ConnectivitySettingsTabProps> = ({
   return (
     <>
       <div className="space-y-4 p-4 rounded-md bg-gray-800/50 border border-gray-700/50">
-        <h3 className="text-lg text-emerald-400 font-minecraft flex items-center gap-2">
-          <Image src="/images/ender-pearl.webp" alt="Conectividad" width={20} height={20} />
-          {t('connectivitySettings')}
-        </h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-lg text-emerald-400 font-minecraft flex items-center gap-2">
+            <Image src="/images/ender-pearl.webp" alt="Conectividad" width={20} height={20} />
+            {t('connectivitySettings')}
+          </h3>
+          <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
+            <a href={LINK_CONNECTIVITY_SETTINGS} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              {t('documentation')}
+            </a>
+          </Button>
+        </div>
 
         <div className="space-y-4">
           <div className="space-y-2">

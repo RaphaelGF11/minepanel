@@ -7,7 +7,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { FormField } from "@/components/ui/form-field";
 import { useLanguage } from "@/lib/hooks/useLanguage";
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { WorldsTab } from "../WorldsTab";
+import { LINK_WORLD_SETTINGS } from "@/lib/providers/constants";
 
 interface WorldSettingsTabProps {
   serverId: string;
@@ -22,6 +25,15 @@ export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ serverId, serverSt
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
+          <a href={LINK_WORLD_SETTINGS} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            {t("documentation")}
+          </a>
+        </Button>
+      </div>
+
       <FormField id="seed" label={t("seed")} value={config.seed || ""} onChange={(value) => updateConfig("seed", value)} placeholder={t("seedPlaceholder")} description={t("seedDescription")} icon="/images/grass.webp" iconAlt={t("seed")} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
