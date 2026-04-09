@@ -1284,6 +1284,13 @@ export const pl: Record<TranslationKey, string> = {
   lanIpDesc: 'Adres IP Twojej sieci lokalnej. Dla graczy w tej samej sieci',
   networkProxyNote:
     'Gdy proxy jest włączone, w powiadomieniach zamiast IP:port będzie używana nazwa hosta proxy',
+  javaServerDefaultsTitle: 'Domyślne ustawienia nowych serwerów Java',
+  javaServerDefaultsDesc:
+    'Globalne ustawienia stosowane podczas tworzenia nowych serwerów Java (vanilla i modded).',
+  javaServerDefaultsOnlineModeDesc: 'Wyłącz dla środowisk offline/cracked.',
+  javaServerDefaultsBackupDesc: 'Automatycznie włącz kopie zapasowe dla nowych serwerów Java.',
+  javaServerDefaultsApplyOnlyNewServers:
+    'Te ustawienia są stosowane tylko podczas tworzenia. Istniejące serwery nie są modyfikowane.',
 
   // ===========================
   // BEDROCK EDITION

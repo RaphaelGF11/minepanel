@@ -29,6 +29,7 @@ import {
   EyeOff,
   Network,
   Info,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/lib/hooks/useLanguage';
@@ -37,6 +38,7 @@ import {
   updateSettings,
   testDiscordWebhook,
   UserSettings,
+  JavaServerDefaults,
   ProxySettings,
   NetworkSettings,
 } from '@/services/settings/settings.service';
@@ -77,6 +79,18 @@ export default function SettingsPage() {
   });
   const [publicIp, setPublicIp] = useState('');
   const [lanIp, setLanIp] = useState('');
+  const [javaDefaults, setJavaDefaults] = useState<JavaServerDefaults>({
+    onlineMode: true,
+    maxPlayers: '',
+    initMemory: '',
+    maxMemory: '',
+    cpuLimit: '',
+    cpuReservation: '',
+    memoryReservation: '',
+    viewDistance: '',
+    simulationDistance: '',
+    enableBackup: false,
+  });
 
   const form = useForm<UserSettings>({
     defaultValues: {
@@ -109,6 +123,9 @@ export default function SettingsPage() {
           setPublicIp(settings.network.publicIp || '');
           setLanIp(settings.network.lanIp || '');
         }
+        if (settings.javaServerDefaults) {
+          setJavaDefaults(settings.javaServerDefaults);
+        }
       } catch (error) {
         console.error('Error loading settings:', error);
         mcToast.error(t('errorLoadingServerInfo'));
@@ -136,6 +153,19 @@ export default function SettingsPage() {
         network: {
           publicIp: publicIp || undefined,
           lanIp: lanIp || undefined,
+        },
+        javaServerDefaults: {
+          ...javaDefaults,
+          maxPlayers: javaDefaults.maxPlayers || undefined,
+          initMemory: javaDefaults.initMemory || undefined,
+          maxMemory: javaDefaults.maxMemory || undefined,
+          cpuLimit: javaDefaults.cpuLimit || undefined,
+          cpuReservation: javaDefaults.cpuReservation || undefined,
+          memoryReservation: javaDefaults.memoryReservation || undefined,
+          viewDistance: javaDefaults.viewDistance || undefined,
+          simulationDistance: javaDefaults.simulationDistance || undefined,
+          autoStopTimeoutEst: javaDefaults.autoStopTimeoutEst || undefined,
+          autoPauseTimeoutEst: javaDefaults.autoPauseTimeoutEst || undefined,
         },
       };
       await updateSettings(updateData);
@@ -659,6 +689,163 @@ export default function SettingsPage() {
           </div>
 
           <div className="animate-fade-in-up stagger-8">
+            <Card className="border-2 border-gray-700/60 bg-gray-900/80 backdrop-blur-md shadow-xl">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-600/20 flex items-center justify-center">
+                    <SlidersHorizontal className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-white font-minecraft">
+                      {t('javaServerDefaultsTitle')}
+                    </CardTitle>
+                    <CardDescription className="text-gray-400">
+                      {t('javaServerDefaultsDesc')}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsMaxPlayers" className="text-gray-200">
+                      {t('maxPlayers')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsMaxPlayers"
+                      value={javaDefaults.maxPlayers || ''}
+                      onChange={(e) => setJavaDefaults({ ...javaDefaults, maxPlayers: e.target.value })}
+                      placeholder="10"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsInitMemory" className="text-gray-200">
+                      {t('initialMemoryJvm')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsInitMemory"
+                      value={javaDefaults.initMemory || ''}
+                      onChange={(e) => setJavaDefaults({ ...javaDefaults, initMemory: e.target.value })}
+                      placeholder="2G"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsMaxMemory" className="text-gray-200">
+                      {t('maxMemoryJvm')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsMaxMemory"
+                      value={javaDefaults.maxMemory || ''}
+                      onChange={(e) => setJavaDefaults({ ...javaDefaults, maxMemory: e.target.value })}
+                      placeholder="4G"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsCpuLimit" className="text-gray-200">
+                      {t('cpuLimit')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsCpuLimit"
+                      value={javaDefaults.cpuLimit || ''}
+                      onChange={(e) => setJavaDefaults({ ...javaDefaults, cpuLimit: e.target.value })}
+                      placeholder="1"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsCpuReservation" className="text-gray-200">
+                      {t('cpuReservation')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsCpuReservation"
+                      value={javaDefaults.cpuReservation || ''}
+                      onChange={(e) =>
+                        setJavaDefaults({ ...javaDefaults, cpuReservation: e.target.value })
+                      }
+                      placeholder="0.25"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsMemoryReservation" className="text-gray-200">
+                      {t('memoryReservationDocker')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsMemoryReservation"
+                      value={javaDefaults.memoryReservation || ''}
+                      onChange={(e) =>
+                        setJavaDefaults({ ...javaDefaults, memoryReservation: e.target.value })
+                      }
+                      placeholder="2G"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsViewDistance" className="text-gray-200">
+                      {t('viewDistance')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsViewDistance"
+                      value={javaDefaults.viewDistance || ''}
+                      onChange={(e) => setJavaDefaults({ ...javaDefaults, viewDistance: e.target.value })}
+                      placeholder="6"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="javaDefaultsSimulationDistance" className="text-gray-200">
+                      {t('simulationDistance')}
+                    </Label>
+                    <Input
+                      id="javaDefaultsSimulationDistance"
+                      value={javaDefaults.simulationDistance || ''}
+                      onChange={(e) =>
+                        setJavaDefaults({ ...javaDefaults, simulationDistance: e.target.value })
+                      }
+                      placeholder="4"
+                      className="bg-gray-800 border-gray-700 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <div>
+                    <p className="text-sm font-medium text-gray-200">{t('onlineMode')}</p>
+                    <p className="text-xs text-gray-500">{t('javaServerDefaultsOnlineModeDesc')}</p>
+                  </div>
+                  <Switch
+                    checked={javaDefaults.onlineMode !== false}
+                    onCheckedChange={(checked) =>
+                      setJavaDefaults({ ...javaDefaults, onlineMode: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-200">{t('enableBackup')}</p>
+                    <p className="text-xs text-gray-500">{t('javaServerDefaultsBackupDesc')}</p>
+                  </div>
+                  <Switch
+                    checked={javaDefaults.enableBackup === true}
+                    onCheckedChange={(checked) =>
+                      setJavaDefaults({ ...javaDefaults, enableBackup: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-start gap-2 p-3 bg-emerald-900/20 border border-emerald-600/30 rounded-lg">
+                  <Info className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                  <p className="text-xs text-emerald-300">{t('javaServerDefaultsApplyOnlyNewServers')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="animate-fade-in-up stagger-9">
             <Card className="border-2 border-red-600/40 bg-red-900/10 backdrop-blur-md shadow-xl">
               <CardHeader>
                 <div className="flex items-center gap-3">

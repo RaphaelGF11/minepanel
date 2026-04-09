@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsBoolean, ValidateNested } from 'class-validator';
+import { IsOptional, IsString, IsBoolean, IsEnum, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProxySettingsDto {
@@ -19,6 +19,84 @@ export class NetworkSettingsDto {
   @IsOptional()
   @IsString()
   lanIp?: string;
+}
+
+export class JavaServerDefaultsDto {
+  @IsOptional()
+  @IsBoolean()
+  onlineMode?: boolean;
+
+  @IsOptional()
+  @IsString()
+  maxPlayers?: string;
+
+  @IsOptional()
+  @IsString()
+  initMemory?: string;
+
+  @IsOptional()
+  @IsString()
+  maxMemory?: string;
+
+  @IsOptional()
+  @IsString()
+  cpuLimit?: string;
+
+  @IsOptional()
+  @IsString()
+  cpuReservation?: string;
+
+  @IsOptional()
+  @IsString()
+  memoryReservation?: string;
+
+  @IsOptional()
+  @IsEnum(['peaceful', 'easy', 'normal', 'hard'])
+  difficulty?: 'peaceful' | 'easy' | 'normal' | 'hard';
+
+  @IsOptional()
+  @IsEnum(['survival', 'creative', 'adventure', 'spectator'])
+  gameMode?: 'survival' | 'creative' | 'adventure' | 'spectator';
+
+  @IsOptional()
+  @IsBoolean()
+  pvp?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  allowFlight?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  commandBlock?: boolean;
+
+  @IsOptional()
+  @IsString()
+  viewDistance?: string;
+
+  @IsOptional()
+  @IsString()
+  simulationDistance?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  enableAutoStop?: boolean;
+
+  @IsOptional()
+  @IsString()
+  autoStopTimeoutEst?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  enableAutoPause?: boolean;
+
+  @IsOptional()
+  @IsString()
+  autoPauseTimeoutEst?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  enableBackup?: boolean;
 }
 
 export class UpdateSettingsDto {
@@ -46,6 +124,11 @@ export class UpdateSettingsDto {
   @ValidateNested()
   @Type(() => NetworkSettingsDto)
   network?: NetworkSettingsDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => JavaServerDefaultsDto)
+  javaServerDefaults?: JavaServerDefaultsDto;
 }
 
 export class SettingsResponseDto {
@@ -62,4 +145,5 @@ export class SettingsResponseDto {
     publicIp: string | null;
     lanIp: string | null;
   };
+  javaServerDefaults?: JavaServerDefaultsDto | null;
 }

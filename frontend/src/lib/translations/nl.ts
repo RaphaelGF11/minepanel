@@ -1311,6 +1311,13 @@ export const nl: Record<TranslationKey, string> = {
   lanIpDesc: 'Je lokale netwerk IP. Voor spelers op hetzelfde netwerk',
   networkProxyNote:
     'Wanneer proxy is ingeschakeld, wordt de proxy hostnaam gebruikt in plaats van IP:poort in meldingen',
+  javaServerDefaultsTitle: 'Java standaardinstellingen voor nieuwe servers',
+  javaServerDefaultsDesc:
+    'Globale standaardwaarden bij het maken van nieuwe Java-servers (vanilla en modded).',
+  javaServerDefaultsOnlineModeDesc: 'Uitschakelen voor offline/cracked omgevingen.',
+  javaServerDefaultsBackupDesc: 'Back-ups automatisch inschakelen voor nieuwe Java-servers.',
+  javaServerDefaultsApplyOnlyNewServers:
+    'Deze standaardwaarden gelden alleen bij het aanmaken. Bestaande servers worden niet aangepast.',
 
   // ===========================
   // BEDROCK EDITION

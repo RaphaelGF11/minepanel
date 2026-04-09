@@ -1306,6 +1306,13 @@ export const de: Record<TranslationKey, string> = {
   lanIpDesc: 'Deine lokale Netzwerk-IP. Für Spieler im gleichen Netzwerk',
   networkProxyNote:
     'Wenn Proxy aktiviert ist, wird der Proxy-Hostname anstelle von IP:Port in Benachrichtigungen verwendet',
+  javaServerDefaultsTitle: 'Java-Standardwerte für neue Server',
+  javaServerDefaultsDesc:
+    'Globale Standardwerte für die Erstellung neuer Java-Server (Vanilla und Modded).',
+  javaServerDefaultsOnlineModeDesc: 'Für Offline/Cracked-Umgebungen deaktivieren.',
+  javaServerDefaultsBackupDesc: 'Backups bei neuen Java-Servern automatisch aktivieren.',
+  javaServerDefaultsApplyOnlyNewServers:
+    'Diese Standardwerte gelten nur bei der Servererstellung. Bestehende Server werden nicht geändert.',
 
   // ===========================
   // BEDROCK EDITION
