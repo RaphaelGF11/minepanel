@@ -128,7 +128,12 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
                   </div>
                   <div className="flex gap-2">
                     {world.selected && <Badge variant="secondary">{t("selected")}</Badge>}
-                    <Badge variant={world.copied ? "default" : "outline"}>{world.copied ? t("worldCopied") : t("worldNotCopied")}</Badge>
+                    <Badge
+                      variant={world.copied ? "default" : "outline"}
+                      className={world.copied ? "" : "border-amber-500/70 text-amber-200 bg-amber-900/30"}
+                    >
+                      {world.copied ? t("worldCopied") : t("worldNotCopied")}
+                    </Badge>
                   </div>
                 </div>
               </button>
