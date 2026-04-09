@@ -11,12 +11,35 @@ export interface NetworkSettings {
   lanIp: string | null;
 }
 
+export interface JavaServerDefaults {
+  onlineMode?: boolean;
+  maxPlayers?: string;
+  initMemory?: string;
+  maxMemory?: string;
+  cpuLimit?: string;
+  cpuReservation?: string;
+  memoryReservation?: string;
+  difficulty?: 'peaceful' | 'easy' | 'normal' | 'hard';
+  gameMode?: 'survival' | 'creative' | 'adventure' | 'spectator';
+  pvp?: boolean;
+  allowFlight?: boolean;
+  commandBlock?: boolean;
+  viewDistance?: string;
+  simulationDistance?: string;
+  enableAutoStop?: boolean;
+  autoStopTimeoutEst?: string;
+  enableAutoPause?: boolean;
+  autoPauseTimeoutEst?: string;
+  enableBackup?: boolean;
+}
+
 export interface UserSettings {
   cfApiKey?: string;
   discordWebhook?: string;
   language?: 'en' | 'es';
   proxy?: ProxySettings;
   network?: NetworkSettings;
+  javaServerDefaults?: JavaServerDefaults | null;
 }
 
 export interface UpdateUserSettings {
@@ -31,6 +54,7 @@ export interface UpdateUserSettings {
     publicIp?: string;
     lanIp?: string;
   };
+  javaServerDefaults?: JavaServerDefaults;
 }
 
 export const getSettings = async (): Promise<UserSettings> => {

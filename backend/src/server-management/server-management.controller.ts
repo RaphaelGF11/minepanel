@@ -9,6 +9,28 @@ import { PayloadToken } from 'src/auth/models/token.model';
 import { ProxyService } from 'src/proxy/proxy.service';
 import { ExecuteCommandDto } from './dto/execute-command.dto';
 
+const JAVA_SERVER_DEFAULT_KEYS = new Set([
+  'onlineMode',
+  'maxPlayers',
+  'initMemory',
+  'maxMemory',
+  'cpuLimit',
+  'cpuReservation',
+  'memoryReservation',
+  'difficulty',
+  'gameMode',
+  'pvp',
+  'allowFlight',
+  'commandBlock',
+  'viewDistance',
+  'simulationDistance',
+  'enableAutoStop',
+  'autoStopTimeoutEst',
+  'enableAutoPause',
+  'autoPauseTimeoutEst',
+  'enableBackup',
+]);
+
 @Controller('servers')
 @UseGuards(JwtAuthGuard)
 export class ServerManagementController {
@@ -18,6 +40,19 @@ export class ServerManagementController {
     private readonly settingsService: SettingsService,
     private readonly proxyService: ProxyService,
   ) {}
+
+  private sanitizeJavaServerDefaults(defaults: Record<string, any> | undefined): Record<string, any> {
+    if (!defaults || typeof defaults !== 'object') {
+      return {};
+    }
+
+    return Object.entries(defaults).reduce((acc, [key, value]) => {
+      if (JAVA_SERVER_DEFAULT_KEYS.has(key) && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+  }
 
   @Get()
   async getAllServers(): Promise<ServerListItemDto[]> {
@@ -65,8 +100,17 @@ export class ServerManagementController {
 
       const proxyEnabled = settings.preferences?.proxyEnabled && !!settings.preferences?.proxyBaseDomain;
       const baseDomain = settings.preferences?.proxyBaseDomain;
+      const javaServerDefaults =
+        (data.edition ?? 'JAVA') === 'JAVA'
+          ? this.sanitizeJavaServerDefaults(settings.preferences?.javaServerDefaults)
+          : {};
 
-      const serverConfig = await this.dockerComposeService.createServer(id, data, proxyEnabled);
+      const createPayload = {
+        ...javaServerDefaults,
+        ...data,
+      };
+
+      const serverConfig = await this.dockerComposeService.createServer(id, createPayload, proxyEnabled);
 
       // Regenerate routes.json if proxy is enabled (Java only, mc-router doesn't support Bedrock)
       if (proxyEnabled && baseDomain) {

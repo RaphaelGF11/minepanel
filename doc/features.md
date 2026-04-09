@@ -30,6 +30,7 @@ flowchart LR
 | All server types | Vanilla, Paper, Forge, Neoforge, Fabric, Purpur, CurseForge modpacks |
 | Any version      | 1.8 to latest, snapshots included                                    |
 | Templates        | Pre-configured: Survival, Creative, SkyBlock, PvP, etc.              |
+| Java defaults    | Global defaults for new Java servers (offline mode, resources, backup switch) |
 | Resource limits  | Set RAM, CPU per server                                              |
 
 ## Real-time Monitoring

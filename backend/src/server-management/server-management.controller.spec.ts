@@ -162,4 +162,58 @@ describe('ServerManagementController', () => {
       expect(result).toEqual(mockLogs);
     });
   });
+
+  describe('createServer', () => {
+    const mockReq = { user: { userId: 1 } };
+
+    it('should apply global java defaults when creating JAVA server', async () => {
+      settingsService.getSettings.mockResolvedValue({
+        preferences: {
+          proxyEnabled: false,
+          proxyBaseDomain: null,
+          javaServerDefaults: {
+            onlineMode: false,
+            maxMemory: '3G',
+            cpuLimit: '1',
+            ignoredField: 'ignored',
+          },
+        },
+      } as any);
+      dockerComposeService.createServer.mockResolvedValue({ id: 'demo' } as any);
+
+      await controller.createServer(mockReq, { id: 'demo', edition: 'JAVA', maxMemory: '4G' } as any);
+
+      expect(dockerComposeService.createServer).toHaveBeenCalledWith(
+        'demo',
+        expect.objectContaining({
+          id: 'demo',
+          edition: 'JAVA',
+          onlineMode: false,
+          maxMemory: '4G',
+          cpuLimit: '1',
+        }),
+        false,
+      );
+      const javaPayload = dockerComposeService.createServer.mock.calls[0][1] as Record<string, unknown>;
+      expect(javaPayload.ignoredField).toBeUndefined();
+    });
+
+    it('should not apply java defaults for BEDROCK server', async () => {
+      settingsService.getSettings.mockResolvedValue({
+        preferences: {
+          proxyEnabled: false,
+          proxyBaseDomain: null,
+          javaServerDefaults: {
+            onlineMode: false,
+          },
+        },
+      } as any);
+      dockerComposeService.createServer.mockResolvedValue({ id: 'bedrock-1' } as any);
+
+      await controller.createServer(mockReq, { id: 'bedrock-1', edition: 'BEDROCK' } as any);
+
+      const bedrockPayload = dockerComposeService.createServer.mock.calls[0][1] as Record<string, unknown>;
+      expect(bedrockPayload.onlineMode).toBeUndefined();
+    });
+  });
 });

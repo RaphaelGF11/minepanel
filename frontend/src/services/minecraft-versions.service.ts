@@ -15,8 +15,11 @@ export interface VersionManifest {
 }
 
 let cachedVersions: MinecraftVersion[] | null = null;
+let cachedLatestRelease: string | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 60 * 60 * 1000;
+
+const isValidJavaRelease = (id: string): boolean => /^1\.\d+(\.\d+)?$/.test(id);
 
 export const minecraftVersionsService = {
   async fetchVersions(): Promise<MinecraftVersion[]> {
@@ -33,6 +36,9 @@ export const minecraftVersionsService = {
       }
 
       const data: VersionManifest = await response.json();
+      cachedLatestRelease = data.latest?.release && isValidJavaRelease(data.latest.release)
+        ? data.latest.release
+        : null;
       cachedVersions = data.versions;
       cacheTimestamp = now;
 
@@ -46,12 +52,21 @@ export const minecraftVersionsService = {
 
   async getReleaseVersions(): Promise<MinecraftVersion[]> {
     const versions = await this.fetchVersions();
-    return versions.filter(v => v.type === 'release');
+    return versions.filter((v) => v.type === 'release' && isValidJavaRelease(v.id));
   },
 
   async getLatestRelease(): Promise<string> {
+    if (cachedLatestRelease) {
+      return cachedLatestRelease;
+    }
+
+    await this.fetchVersions();
+    if (cachedLatestRelease) {
+      return cachedLatestRelease;
+    }
+
     const versions = await this.getReleaseVersions();
-    return versions[0]?.id || '1.20.4';
+    return versions[0]?.id || '1.21';
   },
 
   async getVersionsByType(): Promise<{
@@ -105,6 +120,7 @@ export const minecraftVersionsService = {
 
   clearCache(): void {
     cachedVersions = null;
+    cachedLatestRelease = null;
     cacheTimestamp = 0;
   },
 
@@ -112,4 +128,3 @@ export const minecraftVersionsService = {
     return ['1.21', '1.20.6', '1.20.4', '1.19.4', '1.18.2', '1.16.5', '1.12.2'];
   }
 };
-

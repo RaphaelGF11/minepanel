@@ -7,6 +7,28 @@ import { UsersService } from 'src/users/services/users.service';
 
 @Injectable()
 export class SettingsService {
+  private readonly javaDefaultsKeys = new Set([
+    'onlineMode',
+    'maxPlayers',
+    'initMemory',
+    'maxMemory',
+    'cpuLimit',
+    'cpuReservation',
+    'memoryReservation',
+    'difficulty',
+    'gameMode',
+    'pvp',
+    'allowFlight',
+    'commandBlock',
+    'viewDistance',
+    'simulationDistance',
+    'enableAutoStop',
+    'autoStopTimeoutEst',
+    'enableAutoPause',
+    'autoPauseTimeoutEst',
+    'enableBackup',
+  ]);
+
   constructor(
     @InjectRepository(Settings)
     private readonly settingsRepo: Repository<Settings>,
@@ -63,8 +85,25 @@ export class SettingsService {
       delete (dto as any).network;
     }
 
+    if (dto.javaServerDefaults) {
+      settings.preferences = {
+        ...settings.preferences,
+        javaServerDefaults: this.sanitizeJavaServerDefaults(dto.javaServerDefaults),
+      };
+      delete (dto as any).javaServerDefaults;
+    }
+
     Object.assign(settings, dto);
     return this.settingsRepo.save(settings);
+  }
+
+  private sanitizeJavaServerDefaults(defaults: Record<string, any>): Record<string, any> {
+    return Object.entries(defaults).reduce((acc, [key, value]) => {
+      if (this.javaDefaultsKeys.has(key) && value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
   }
 
   async getProxySettings(userId: number): Promise<{ enabled: boolean; baseDomain: string | null; available: boolean }> {

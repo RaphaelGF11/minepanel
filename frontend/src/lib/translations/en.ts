@@ -1278,6 +1278,13 @@ export const en = {
   lanIpDesc: 'Your local network IP. For players on the same network',
   networkProxyNote:
     'When proxy is enabled, the proxy hostname will be used instead of IP:port in notifications',
+  javaServerDefaultsTitle: 'Java New Server Defaults',
+  javaServerDefaultsDesc:
+    'Global defaults applied when creating new Java servers (vanilla and modded).',
+  javaServerDefaultsOnlineModeDesc: 'Disable for offline/cracked mode environments.',
+  javaServerDefaultsBackupDesc: 'Automatically enable backups on new Java servers.',
+  javaServerDefaultsApplyOnlyNewServers:
+    'These defaults are only applied during server creation. Existing servers are not modified.',
 
   // ===========================
   // BEDROCK EDITION

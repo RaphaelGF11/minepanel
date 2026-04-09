@@ -22,6 +22,7 @@ export class SettingsController {
       ...settings,
       proxy,
       network,
+      javaServerDefaults: settings.preferences?.javaServerDefaults ?? null,
     };
   }
 
