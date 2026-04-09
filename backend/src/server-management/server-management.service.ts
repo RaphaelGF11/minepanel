@@ -71,6 +71,15 @@ export interface CommandExecutionResponse {
   output: string;
 }
 
+export interface AvailableWorld {
+  name: string;
+  source: string;
+  type: 'directory' | 'archive';
+  defaultLevelName: string;
+  selected: boolean;
+  copied: boolean;
+}
+
 @Injectable()
 export class ServerManagementService {
   private readonly logger = new Logger(ServerManagementService.name);
@@ -104,6 +113,108 @@ export class ServerManagementService {
 
   private getMcDataPath(serverId: string): string {
     return path.join(this.SERVERS_DIR, serverId, 'mc-data');
+  }
+
+  private getWorldsPath(): string {
+    return path.join(this.BASE_DIR, 'worlds');
+  }
+
+  private sanitizeLevelName(input: string): string {
+    const trimmed = input.trim();
+    if (!trimmed) return 'world';
+    return trimmed.replaceAll(/[\\/]/g, '').trim() || 'world';
+  }
+
+  private getDefaultLevelNameFromSource(source: string): string {
+    return source
+      .replace(/\.tar\.gz$/i, '')
+      .replace(/\.tgz$/i, '')
+      .replace(/\.tar$/i, '')
+      .replace(/\.zip$/i, '');
+  }
+
+  private isSupportedWorldArchive(fileName: string): boolean {
+    return /\.(zip|tar|tar\.gz|tgz)$/i.test(fileName);
+  }
+
+  private async hasLevelDat(worldPath: string, depth = 0): Promise<boolean> {
+    if (depth > 4) return false;
+
+    const directLevelDat = path.join(worldPath, 'level.dat');
+    if (await fs.pathExists(directLevelDat)) {
+      return true;
+    }
+
+    const entries = await fs.readdir(worldPath);
+    for (const entry of entries) {
+      const candidate = path.join(worldPath, entry);
+      const stat = await fs.stat(candidate);
+      if (!stat.isDirectory()) continue;
+      if (await this.hasLevelDat(candidate, depth + 1)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private async worldWasCopied(serverId: string, levelName: string): Promise<boolean> {
+    const expectedLevelPath = path.join(this.getMcDataPath(serverId), levelName, 'level.dat');
+    return fs.pathExists(expectedLevelPath);
+  }
+
+  async listAvailableWorlds(serverId: string, selectedWorldSource = '', selectedLevelName = 'world'): Promise<AvailableWorld[]> {
+    if (!this.validateServerId(serverId)) {
+      return [];
+    }
+
+    const worldsPath = this.getWorldsPath();
+    await fs.ensureDir(worldsPath);
+
+    const entries = await fs.readdir(worldsPath);
+    const worlds: AvailableWorld[] = [];
+
+    for (const entryName of entries) {
+      const sourcePath = path.join(worldsPath, entryName);
+      const stat = await fs.stat(sourcePath);
+
+      if (stat.isDirectory()) {
+        const validWorldDir = await this.hasLevelDat(sourcePath);
+        if (!validWorldDir) continue;
+
+        const defaultLevelName = this.getDefaultLevelNameFromSource(entryName);
+        const levelName = selectedWorldSource === entryName ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
+
+        worlds.push({
+          name: entryName,
+          source: entryName,
+          type: 'directory',
+          defaultLevelName,
+          selected: selectedWorldSource === entryName,
+          copied: await this.worldWasCopied(serverId, levelName),
+        });
+        continue;
+      }
+
+      if (!stat.isFile() || !this.isSupportedWorldArchive(entryName)) {
+        continue;
+      }
+
+      const defaultLevelName = this.getDefaultLevelNameFromSource(entryName);
+      const levelName = selectedWorldSource === entryName ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
+
+      worlds.push({
+        name: entryName,
+        source: entryName,
+        type: 'archive',
+        defaultLevelName,
+        selected: selectedWorldSource === entryName,
+        copied: await this.worldWasCopied(serverId, levelName),
+      });
+    }
+
+    worlds.sort((a, b) => a.name.localeCompare(b.name));
+    return worlds;
   }
 
   private getComposeProjectName(serverId: string): string | undefined {

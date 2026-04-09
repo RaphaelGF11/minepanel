@@ -24,6 +24,7 @@ services:
       # - NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH} # Frontend base path (e.g., /minepanel)
     volumes:
       - ${BASE_DIR:-$PWD}/servers:/app/servers
+      - ${BASE_DIR:-$PWD}/worlds:/app/worlds
       - /var/run/docker.sock:/var/run/docker.sock
       - ${BASE_DIR:-$PWD}/data:/app/data
     networks:
