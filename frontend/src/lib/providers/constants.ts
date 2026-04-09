@@ -6,3 +6,6 @@ export const LINK_FORGOT_PASSWORD = `${LINK}/administration.html#forgot-your-pas
 export const LINK_MODS_PLUGINS = `${LINK}/mods-plugins.html`;
 export const LINK_WORLD_SETTINGS = `${LINK}/server-types.html#world-sources-folders-zip-tar`;
 export const LINK_CONNECTIVITY_SETTINGS = `${LINK}/networking.html`;
+export const LINK_FILE_MANAGEMENT = `${LINK}/features.html#file-management`;
+export const LINK_BACKUPS_SETTINGS = `${LINK}/features.html#backups`;
+export const LINK_ADVANCED_CONFIGURATION = `${LINK}/configuration.html#advanced`;

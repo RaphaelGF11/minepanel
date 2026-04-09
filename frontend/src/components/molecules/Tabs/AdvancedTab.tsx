@@ -11,12 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { HelpCircle, Network, Plus, Trash2 } from 'lucide-react';
+import { BookOpen, HelpCircle, Network, Plus, Trash2 } from 'lucide-react';
 import { ServerConfig } from '@/lib/types/types';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Image from 'next/image';
 import { Switch } from '@/components/ui/switch';
+import { LINK_ADVANCED_CONFIGURATION, LINK_BACKUPS_SETTINGS } from '@/lib/providers/constants';
 
 interface AdvancedTabProps {
   config: ServerConfig;
@@ -60,17 +61,27 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ config, updateConfig }) => {
   return (
     <Card className="bg-gray-900/60 border-gray-700/50 shadow-lg">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl text-emerald-400 font-minecraft flex items-center gap-2">
-          <Image
-            src="/images/command-block.webp"
-            alt="Avanzado"
-            width={24}
-            height={24}
-            className="opacity-90"
-          />
-          {t('advancedConfig')}
-        </CardTitle>
-        <CardDescription className="text-gray-300">{t('advancedConfigDesc')}</CardDescription>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-xl text-emerald-400 font-minecraft flex items-center gap-2">
+              <Image
+                src="/images/command-block.webp"
+                alt="Avanzado"
+                width={24}
+                height={24}
+                className="opacity-90"
+              />
+              {t('advancedConfig')}
+            </CardTitle>
+            <CardDescription className="text-gray-300">{t('advancedConfigDesc')}</CardDescription>
+          </div>
+          <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
+            <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              {t('documentation')}
+            </a>
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -83,13 +94,22 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ config, updateConfig }) => {
               <h3 className="text-emerald-400 font-minecraft text-md">{t('backupConfig')}</h3>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-gray-300 text-sm">{t('enableBackup')}</span>
-              <Switch
-                checked={config.enableBackup || false}
-                onCheckedChange={(checked: boolean) => updateConfig('enableBackup', checked)}
-                className="data-[state=checked]:bg-emerald-500"
-              />
+            <div className="flex items-center gap-3">
+              <Button asChild variant="outline" size="sm" className="border-gray-600 text-gray-200 hover:bg-gray-700">
+                <a href={LINK_BACKUPS_SETTINGS} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  {t('documentation')}
+                </a>
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-gray-300 text-sm">{t('enableBackup')}</span>
+                <Switch
+                  checked={config.enableBackup || false}
+                  onCheckedChange={(checked: boolean) => updateConfig('enableBackup', checked)}
+                  className="data-[state=checked]:bg-emerald-500"
+                />
+              </div>
             </div>
           </div>
 
