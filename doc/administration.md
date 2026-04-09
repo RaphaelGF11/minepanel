@@ -267,7 +267,7 @@ Unlike RCON, Bedrock commands don't return output directly. Check the Logs tab t
 
 ### Quick Actions Notes
 
-- `keepInventory`, `doDaylightCycle`, and similar toggles use `gamerule` commands
+- `gamerule` quick actions are compatible with both naming styles (`keepInventory` for older versions and `keep_inventory` for 1.21+)
 - PvP toggle uses the server command `pvp true|false` (not `gamerule pvp`)
 
 ---

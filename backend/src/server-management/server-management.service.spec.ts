@@ -381,6 +381,44 @@ describe('ServerManagementService', () => {
       expect(result.success).toBe(false);
       expect(result.output).toContain('Execution failed');
     });
+
+    it('should retry gamerule with snake_case when camelCase is rejected', async () => {
+      (fs.pathExists as jest.Mock).mockResolvedValue(true);
+
+      jest.spyOn(service as any, 'findContainerId').mockResolvedValue('container123');
+      jest.spyOn(service as any, 'getServerEdition').mockResolvedValue('JAVA');
+      const executeProcessSpy = jest
+        .spyOn(service as any, 'executeProcess')
+        .mockResolvedValueOnce({
+          stdout: 'Incorrect argument for commandgamerule keepInventory true<--[HERE]',
+          stderr: '',
+          exitCode: 0,
+        })
+        .mockResolvedValueOnce({
+          stdout: 'Unknown or incomplete command, see below for error',
+          stderr: '',
+          exitCode: 0,
+        })
+        .mockResolvedValueOnce({
+          stdout: 'Game rule has been updated',
+          stderr: '',
+          exitCode: 0,
+        });
+
+      const result = await service.executeCommand('myserver', 'gamerule keepInventory true', '25575');
+
+      expect(result.success).toBe(true);
+      expect(executeProcessSpy).toHaveBeenNthCalledWith(3, 'docker', [
+        'exec',
+        'container123',
+        'rcon-cli',
+        '--port',
+        '25575',
+        'gamerule',
+        'keep_inventory',
+        'true',
+      ]);
+    });
   });
 
   describe('getServerResources', () => {

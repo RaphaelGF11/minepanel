@@ -254,6 +254,25 @@ export class ServerManagementService {
     return /Incorrect argument for command|Unknown or incomplete command|Unknown command|commands\./i.test(output);
   }
 
+  private convertGameruleToSnakeCase(command: string): string | null {
+    const tokens = this.tokenizeRconCommand(command);
+    if (tokens.length < 2 || tokens[0].toLowerCase() !== 'gamerule') {
+      return null;
+    }
+
+    const gamerule = tokens[1];
+    if (!/[A-Z]/.test(gamerule)) {
+      return null;
+    }
+
+    const snakeCaseGamerule = gamerule.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+    if (snakeCaseGamerule === gamerule) {
+      return null;
+    }
+
+    return ['gamerule', snakeCaseGamerule, ...tokens.slice(2)].join(' ');
+  }
+
   private async executeRconWithFallback(
     containerId: string,
     rconPort: string,
@@ -1154,6 +1173,15 @@ export class ServerManagementService {
       // Java uses RCON with fallback argument styles for cross-platform reliability.
       const rconResult = await this.executeRconWithFallback(containerId, rconPort, rconPassword, normalizedCommand);
       if (!rconResult.success) {
+        const snakeCaseGameruleCommand = this.convertGameruleToSnakeCase(normalizedCommand);
+        if (snakeCaseGameruleCommand && this.isRconCommandError(rconResult.output)) {
+          const snakeCaseResult = await this.executeRconWithFallback(containerId, rconPort, rconPassword, snakeCaseGameruleCommand);
+          if (snakeCaseResult.success) {
+            this.logger.log(`Command executed on ${serverId}: ${snakeCaseGameruleCommand}`);
+            return snakeCaseResult;
+          }
+        }
+
         this.logger.warn(`Command execution failed on ${serverId}: ${rconResult.output}`);
         return rconResult;
       }
