@@ -1,6 +1,6 @@
 ---
 title: FAQ - Minepanel
-description: Frequently asked questions.
+description: Frequently asked questions about Minepanel - Installation, Java and Bedrock support, ports, backups, updates, and common troubleshooting answers.
 ---
 
 # FAQ

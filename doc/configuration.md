@@ -65,33 +65,20 @@ Use this only for trusted LAN/development environments. Prefer HTTPS whenever po
 
 ## Quick Reference
 
-### Local Development
+<TerminalCommand
+  title="config-check"
+  command="docker compose config"
+  :outputs="[
+    'services.frontend.environment.FRONTEND_URL=http://localhost:3000',
+    'services.backend.environment.NEXT_PUBLIC_BACKEND_URL=http://localhost:8091',
+    'Configuration loaded successfully'
+  ]"
+  :typing-ms="1800"
+/>
 
-```bash
-# .env
-JWT_SECRET=your_secret
-JWT_EXPIRES_IN=2d
-```
+Pick a preset and copy it to your `.env` file:
 
-### Remote Access
-
-```bash
-# .env
-JWT_SECRET=your_secret
-JWT_EXPIRES_IN=2d
-FRONTEND_URL=http://your-ip:3000
-NEXT_PUBLIC_BACKEND_URL=http://your-ip:8091
-```
-
-### With Domain + SSL
-
-```bash
-# .env
-JWT_SECRET=your_secret
-JWT_EXPIRES_IN=2d
-FRONTEND_URL=https://minepanel.yourdomain.com
-NEXT_PUBLIC_BACKEND_URL=https://api.yourdomain.com
-```
+<EnvPresetTabs />
 
 ## Network Settings
 

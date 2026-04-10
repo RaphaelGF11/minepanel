@@ -101,6 +101,7 @@ export class JavaServerStrategy implements IServerStrategy {
     };
 
     if (config.seed) env['SEED'] = config.seed;
+    this.addWorldConfig(env, config);
 
     this.addJvmOptions(env, config);
     this.addAutomationOptions(env, config);
@@ -154,6 +155,25 @@ export class JavaServerStrategy implements IServerStrategy {
   private addConnectivityOptions(env: Record<string, string>, config: ServerConfig): void {
     if (config.preventProxyConnections) env['PREVENT_PROXY_CONNECTIONS'] = 'true';
     if (config.opPermissionLevel) env['OP_PERMISSION_LEVEL'] = config.opPermissionLevel;
+  }
+
+  private addWorldConfig(env: Record<string, string>, config: ServerConfig): void {
+    if (config.worldLevelName) {
+      env['LEVEL'] = config.worldLevelName;
+    }
+
+    if (config.worldSource) {
+      if (config.worldSource.startsWith('/')) {
+        env['WORLD'] = config.worldSource;
+      } else {
+        const worldScope = config.worldScope ?? 'local';
+        env['WORLD'] = worldScope === 'global' ? `/data/.world-library/global/${config.worldSource}` : `/data/.world-library/local/${config.worldSource}`;
+      }
+    }
+
+    if (config.forceWorldCopy) {
+      env['FORCE_WORLD_COPY'] = 'TRUE';
+    }
   }
 
   private addForgeConfig(env: Record<string, string>, config: ServerConfig): void {

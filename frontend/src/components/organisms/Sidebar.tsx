@@ -19,6 +19,7 @@ import {
   FolderOpen,
   BookOpen,
   Bug,
+  Globe,
 } from 'lucide-react';
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import { useUIStore, useServersStore } from '@/lib/store';
@@ -105,6 +106,12 @@ export function Sidebar() {
       icon: FolderOpen,
       href: '/dashboard/files',
       isActive: pathname === '/dashboard/files',
+    },
+    {
+      label: t('worldLibrary'),
+      icon: Globe,
+      href: '/dashboard/world-library',
+      isActive: pathname === '/dashboard/world-library',
     },
     {
       label: t('templates'),

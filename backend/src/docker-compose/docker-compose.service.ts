@@ -20,11 +20,13 @@ export class DockerComposeService {
   private readonly logger = new Logger(DockerComposeService.name);
   private readonly SERVERS_DIR: string;
   private readonly BASE_DIR: string;
+  private readonly RESERVED_SERVER_DIRS = new Set(['.world']);
 
   constructor(private readonly configService: ConfigService) {
     this.SERVERS_DIR = this.configService.get('serversDir');
     this.BASE_DIR = this.configService.get('baseDir');
     fs.ensureDirSync(this.SERVERS_DIR);
+    fs.ensureDirSync(path.join(this.SERVERS_DIR, '.world', 'worlds'));
   }
 
   private validateServerId(serverId: string): boolean {
@@ -131,6 +133,10 @@ export class DockerComposeService {
         allowFlight: env.ALLOW_FLIGHT === 'true',
         gameMode: env.MODE ?? 'survival',
         seed: env.SEED,
+        worldSource: this.parseWorldSource(env.WORLD),
+        worldScope: this.parseWorldScope(env.WORLD),
+        worldLevelName: env.LEVEL ?? 'world',
+        forceWorldCopy: env.FORCE_WORLD_COPY === 'TRUE' || env.FORCE_WORLD_COPY === 'true',
         levelType: this.parseLevelType(env.LEVEL_TYPE, edition),
         hardcore: env.HARDCORE === 'true',
         spawnAnimals: env.SPAWN_ANIMALS !== 'false',
@@ -266,12 +272,33 @@ export class DockerComposeService {
     return 'minecraft:default';
   }
 
+  private parseWorldSource(world: string | undefined): string {
+    if (!world) return '';
+    const trimmed = world.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('/data/.world-library/local/')) return trimmed.slice('/data/.world-library/local/'.length);
+    if (trimmed.startsWith('/data/.world-library/global/')) return trimmed.slice('/data/.world-library/global/'.length);
+    if (trimmed.startsWith('/worlds/local/')) return trimmed.slice('/worlds/local/'.length);
+    if (trimmed.startsWith('/worlds/global/')) return trimmed.slice('/worlds/global/'.length);
+    if (trimmed.startsWith('/worlds/')) return trimmed.slice('/worlds/'.length);
+    return trimmed;
+  }
+
+  private parseWorldScope(world: string | undefined): 'local' | 'global' {
+    if (!world) return 'local';
+    const trimmed = world.trim();
+    if (trimmed.startsWith('/data/.world-library/global/')) return 'global';
+    if (trimmed.startsWith('/worlds/global/')) return 'global';
+    return 'local';
+  }
+
   private extractCustomEnvVars(env: any): string {
     const knownEnvVars = new Set(['ID_MANAGER', 'EULA', 'MOTD', 'SERVER_NAME', 'DIFFICULTY', 'MAX_PLAYERS', 'OPS', 'TZ', 'ONLINE_MODE', 'PVP', 'ENABLE_COMMAND_BLOCK', 'ALLOW_FLIGHT', 'VIEW_DISTANCE', 'SIMULATION_DISTANCE', 'STOP_SERVER_ANNOUNCE_DELAY', 'ENABLE_ROLLING_LOGS', 'EXEC_DIRECTLY', 'PLAYER_IDLE_TIMEOUT', 'ENTITY_BROADCAST_RANGE_PERCENTAGE', 'LEVEL_TYPE', 'MODE', 'HARDCORE', 'SPAWN_ANIMALS', 'SPAWN_MONSTERS', 'SPAWN_NPCS', 'GENERATE_STRUCTURES', 'ALLOW_NETHER', 'UID', 'GID', 'INIT_MEMORY', 'MAX_MEMORY', 'SEED', 'VERSION', 'TYPE', 'ENABLE_AUTOSTOP', 'AUTOSTOP_TIMEOUT_EST', 'AUTOSTOP_TIMEOUT_INIT', 'ENABLE_AUTOPAUSE', 'AUTOPAUSE_TIMEOUT_EST', 'AUTOPAUSE_TIMEOUT_INIT', 'AUTOPAUSE_KNOCK_INTERFACE', 'PREVENT_PROXY_CONNECTIONS', 'OP_PERMISSION_LEVEL', 'ENABLE_RCON', 'RCON_PORT', 'RCON_PASSWORD', 'BROADCAST_RCON_TO_OPS', 'USE_AIKAR_FLAGS', 'ENABLE_JMX', 'JMX_HOST', 'JVM_OPTS', 'JVM_XX_OPTS', 'JVM_DD_OPTS', 'EXTRA_ARGS', 'LOG_TIMESTAMP', 'FORGE_VERSION', 'NEOFORGE_VERSION', 'FABRIC_LOADER_VERSION', 'FABRIC_LAUNCHER_VERSION', 'FABRIC_LAUNCHER', 'FABRIC_LAUNCHER_URL', 'FABRIC_FORCE_REINSTALL', 'MODRINTH_PROJECTS', 'MODRINTH_DOWNLOAD_DEPENDENCIES', 'MODRINTH_PROJECTS_DEFAULT_VERSION_TYPE', 'MODRINTH_LOADER', 'MODRINTH_MODPACK', 'CF_API_KEY', 'CURSEFORGE_FILES', 'CF_PAGE_URL', 'CF_SLUG', 'CF_FILE_ID', 'CF_FORCE_SYNCHRONIZE', 'CF_FORCE_INCLUDE_MODS', 'CF_EXCLUDE_MODS', 'CF_FILENAME_MATCHER', 'CF_PARALLEL_DOWNLOADS', 'CF_OVERRIDES_SKIP_EXISTING', 'CF_SET_LEVEL_FROM', 'MODPACK_PLATFORM', 'CF_SERVER_MOD', 'CF_BASE_DIR', 'USE_MODPACK_START_SCRIPT', 'FTB_LEGACYJAVAFIXER', 'SPIGET_RESOURCES', 'SKIP_DOWNLOAD_DEFAULTS', 'PAPER_BUILD', 'PAPER_CHANNEL', 'PAPER_DOWNLOAD_URL', 'BUKKIT_DOWNLOAD_URL', 'BUILD_FROM_SOURCE', 'SPIGOT_DOWNLOAD_URL', 'PUFFERFISH_BUILD', 'USE_FLARE_FLAGS', 'PURPUR_BUILD', 'PURPUR_DOWNLOAD_URL', 'LEAF_BUILD', 'FOLIA_BUILD', 'FOLIA_CHANNEL', 'FOLIA_DOWNLOAD_URL', 'GAMEMODE', 'WHITE_LIST', 'ALLOW_CHEATS', 'TICK_DISTANCE', 'MAX_THREADS', 'DEFAULT_PLAYER_PERMISSION_LEVEL', 'TEXTUREPACK_REQUIRED']);
 
+    const knownWorldVars = new Set(['LEVEL', 'WORLD', 'FORCE_WORLD_COPY']);
     const customVars: string[] = [];
     for (const [key, value] of Object.entries(env)) {
-      if (!knownEnvVars.has(key) && value !== undefined && value !== null) {
+      if (!knownEnvVars.has(key) && !knownWorldVars.has(key) && value !== undefined && value !== null) {
         customVars.push(`${key}=${value}`);
       }
     }
@@ -494,6 +521,10 @@ export class DockerComposeService {
       allowFlight: true,
       gameMode: 'survival',
       seed: '',
+      worldSource: '',
+      worldScope: 'local',
+      worldLevelName: 'world',
+      forceWorldCopy: false,
       levelType: 'minecraft:default',
       hardcore: false,
       spawnAnimals: true,
@@ -650,7 +681,10 @@ export class DockerComposeService {
       }
 
       const entries = await fs.readdir(this.SERVERS_DIR, { withFileTypes: true });
-      const directories = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+      const directories = entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .filter((name) => !this.RESERVED_SERVER_DIRS.has(name) && !name.startsWith('.'));
 
       const serverIds = await Promise.all(
         directories.map(async (dir) => {
@@ -733,6 +767,8 @@ export class DockerComposeService {
     await fs.ensureDir(serverPath);
     const mcDataPath = path.join(serverPath, 'mc-data');
     await fs.ensureDir(mcDataPath);
+    await fs.ensureDir(path.join(serverPath, 'worlds'));
+    await fs.ensureDir(path.join(this.SERVERS_DIR, '.world', 'worlds'));
 
     if (serverExists) {
       this.logger.log(`Server directory "${id}" already exists, checking for uploaded data...`);
@@ -1057,7 +1093,7 @@ export class DockerComposeService {
   }
 
   private parseVolumes(config: ServerConfig): string[] {
-    return config.dockerVolumes
+    const volumes = config.dockerVolumes
       .split('\n')
       .filter((line) => line.trim())
       .map((line) => {
@@ -1070,6 +1106,35 @@ export class DockerComposeService {
         }
         return volume;
       });
+
+    const edition = config.edition ?? 'JAVA';
+    if (edition === 'JAVA') {
+      const hasLocalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/data/.world-library/local'));
+      const hasGlobalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/data/.world-library/global'));
+
+      if (!hasLocalWorldsMount) {
+        volumes.push(`${path.join(this.BASE_DIR, 'servers', config.id, 'worlds')}:/data/.world-library/local:ro`);
+      }
+
+      if (!hasGlobalWorldsMount) {
+        volumes.push(`${path.join(this.BASE_DIR, 'servers', '.world', 'worlds')}:/data/.world-library/global:ro`);
+      }
+    }
+
+    return volumes;
+  }
+
+  private hasMountTarget(volume: string, target: string): boolean {
+    const parts = volume.split(':');
+    if (parts.length < 2) return false;
+    const mountTarget = parts[1];
+    if (target === '/data/.world-library/local') {
+      return mountTarget === '/data/.world-library/local' || mountTarget === '/worlds/local' || mountTarget === '/worlds';
+    }
+    if (target === '/data/.world-library/global') {
+      return mountTarget === '/data/.world-library/global' || mountTarget === '/worlds/global';
+    }
+    return mountTarget === target;
   }
 
   private async ensurePortAvailable(config: ServerConfig): Promise<string> {

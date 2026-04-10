@@ -1,6 +1,6 @@
 ---
 title: Networking - Minepanel
-description: Remote access, SSL, proxy configuration.
+description: Complete Minepanel networking guide - Remote access, firewall ports, SSL/HTTPS reverse proxy setup, Cloudflare Tunnel, and Java/Bedrock connectivity troubleshooting.
 ---
 
 # Networking
@@ -31,6 +31,16 @@ flowchart TB
 ```
 
 ## Remote Access
+
+<TerminalCommand
+  title="remote-access"
+  command="docker compose restart"
+  :outputs="[
+    'Restarting minepanel-frontend ... done',
+    'Restarting minepanel-backend  ... done',
+    'Minepanel is now available at your LAN IP'
+  ]"
+/>
 
 Update `docker-compose.yml`:
 
@@ -66,6 +76,25 @@ hostname -I | awk '{print $1}'
 (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet").IPAddress
 ```
 
+## Connectivity Tab (per server)
+
+Minepanel server configuration includes **General -> Connectivity**.
+
+Key fields:
+
+| Field | What it affects |
+| --- | --- |
+| `serverPort` | Published game port (`25565` Java, `19132` Bedrock by default) |
+| `onlineMode` | Mojang auth verification for Java servers |
+| `preventProxyConnections` | Blocks bypass connections when using Java proxy routing |
+| `ops` | Operator usernames |
+| `opPermissionLevel` | Java op permission level (1-4) |
+
+Notes:
+
+- If Java proxy is enabled globally, port mapping may be controlled by proxy mode.
+- Bedrock uses UDP and does not use Java proxy routing.
+
 ## Ports
 
 | Service        | Default | Protocol | Description         |
@@ -95,12 +124,7 @@ sudo ufw allow 19132/udp
 
 ## SSL/HTTPS
 
-```mermaid
-flowchart LR
-    User["👤"] -->|"HTTPS :443"| Proxy["🔒 Nginx/Caddy"]
-    Proxy --> FE[":3000"]
-    Proxy --> BE[":8091"]
-```
+<NetworkPulseFlow />
 
 ### Nginx + Let's Encrypt
 

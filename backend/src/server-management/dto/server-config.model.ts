@@ -73,6 +73,22 @@ export class ServerConfigDto {
   @IsOptional()
   seed?: string;
 
+  @IsString()
+  @IsOptional()
+  worldSource?: string;
+
+  @IsEnum(['local', 'global'])
+  @IsOptional()
+  worldScope?: 'local' | 'global';
+
+  @IsString()
+  @IsOptional()
+  worldLevelName?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  forceWorldCopy?: boolean;
+
   @IsEnum(['minecraft:default', 'minecraft:flat', 'minecraft:large_biomes', 'minecraft:amplified', 'minecraft:single_biome_surface'])
   @IsOptional()
   levelType?: 'minecraft:default' | 'minecraft:flat' | 'minecraft:large_biomes' | 'minecraft:amplified' | 'minecraft:single_biome_surface';

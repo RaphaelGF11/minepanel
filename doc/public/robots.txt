@@ -3,9 +3,8 @@
 
 User-agent: *
 Allow: /
-Disallow: /assets/chunks/
 Disallow: /hashmap.json
-Disallow: /_vitepress/
+Disallow: /agents
 
 # Specific crawlers
 User-agent: Googlebot

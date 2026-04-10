@@ -28,47 +28,18 @@ hero:
       text: GitHub
       link: https://github.com/Ketbome/minepanel
 
-features:
-  - icon: 🎮
-    title: Java & Bedrock
-    details: Full support for both Minecraft editions in one panel.
-
-  - icon: 🚀
-    title: 2-Minute Setup
-    details: Clone, compose up, done.
-
-  - icon: 🐳
-    title: Docker Native
-    details: Each server isolated in its own container.
-
-  - icon: 🔧
-    title: All Server Types
-    details: Vanilla, Paper, Forge, Neoforge, Fabric, Purpur, CurseForge modpacks.
-
-  - icon: 📊
-    title: Real-time Monitoring
-    details: CPU, RAM, logs with auto error detection.
-
-  - icon: 📁
-    title: File Browser
-    details: Edit configs, upload files, syntax highlighting.
-
-  - icon: 💾
-    title: Auto Backups
-    details: Schedule, restore, download. (Java Edition)
-
-  - icon: 🌐
-    title: Proxy Support
-    details: mc-router for multiple servers on one port. (Java Edition)
-
-  - icon: 🌍
-    title: Multi-language
-    details: EN / ES / NL / DE / PL
-
-  - icon: 🔄
-    title: Multi-arch
-    details: x86, ARM, Raspberry Pi, Apple Silicon.
 ---
+
+<TerminalCommand
+  title="quick-deploy"
+  command="docker compose up -d"
+  :outputs="[
+    '[+] Running 3/3',
+    ' ✔ Container minepanel-backend   Started',
+    ' ✔ Container minepanel-frontend  Started',
+    ' ✔ Container minepanel-db        Started'
+  ]"
+/>
 
 ## Quick Start
 
@@ -79,6 +50,35 @@ docker compose up -d
 ```
 
 Open http://localhost:3000 → Login: `admin` / `admin`
+
+## Why Minepanel
+
+<div class="home-highlights">
+  <article class="home-highlight">
+    <h3>Java + Bedrock in one panel</h3>
+    <p>Run both editions from the same dashboard with edition-specific controls.</p>
+  </article>
+  <article class="home-highlight">
+    <h3>Docker-first workflow</h3>
+    <p>Each server is isolated, easy to restart, and simple to migrate.</p>
+  </article>
+  <article class="home-highlight">
+    <h3>World and file management</h3>
+    <p>Upload worlds, edit configs, and manage folders without leaving the UI.</p>
+  </article>
+  <article class="home-highlight">
+    <h3>Live monitoring and logs</h3>
+    <p>Track status, resources, and errors in real time while players are connected.</p>
+  </article>
+  <article class="home-highlight">
+    <h3>Backups and restore</h3>
+    <p>Schedule backups and recover quickly when testing goes wrong.</p>
+  </article>
+  <article class="home-highlight">
+    <h3>Proxy and networking tools</h3>
+    <p>Use hostname routing for Java or direct UDP ports for Bedrock servers.</p>
+  </article>
+</div>
 
 ## Powered By
 

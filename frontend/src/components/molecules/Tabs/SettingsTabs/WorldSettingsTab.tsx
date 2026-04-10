@@ -7,18 +7,30 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { FormField } from "@/components/ui/form-field";
 import { useLanguage } from "@/lib/hooks/useLanguage";
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
+import { WorldsTab } from "../WorldsTab";
+import { LINK_WORLD_SETTINGS } from "@/lib/providers/constants";
 
 interface WorldSettingsTabProps {
+  serverId: string;
+  serverStatus: string;
   config: ServerConfig;
   updateConfig: <K extends keyof ServerConfig>(field: K, value: ServerConfig[K]) => void;
 }
 
-export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ config, updateConfig }) => {
+export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ serverId, serverStatus, config, updateConfig }) => {
   const { t } = useLanguage();
   const isJava = config.edition !== "BEDROCK";
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <a href={LINK_WORLD_SETTINGS} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+          <BookOpen className="h-4 w-4" />
+          {t("documentation")}
+        </a>
+      </div>
+
       <FormField id="seed" label={t("seed")} value={config.seed || ""} onChange={(value) => updateConfig("seed", value)} placeholder={t("seedPlaceholder")} description={t("seedDescription")} icon="/images/grass.webp" iconAlt={t("seed")} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -200,6 +212,8 @@ export const WorldSettingsTab: FC<WorldSettingsTabProps> = ({ config, updateConf
         </AccordionItem>
       </Accordion>
       )}
+
+      {isJava && <WorldsTab serverId={serverId} serverStatus={serverStatus} config={config} updateConfig={updateConfig} />}
     </div>
   );
 };

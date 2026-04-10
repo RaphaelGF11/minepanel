@@ -71,12 +71,24 @@ export interface CommandExecutionResponse {
   output: string;
 }
 
+export interface AvailableWorld {
+  name: string;
+  source: string;
+  scope: 'local' | 'global';
+  type: 'directory' | 'archive';
+  defaultLevelName: string;
+  displayPath: string;
+  selected: boolean;
+  copied: boolean;
+}
+
 @Injectable()
 export class ServerManagementService {
   private readonly logger = new Logger(ServerManagementService.name);
   private readonly SERVERS_DIR: string;
   private readonly BASE_DIR: string;
   private readonly COMPOSE_PROJECT?: string;
+  private readonly RESERVED_SERVER_DIRS = new Set(['.world']);
 
   constructor(
     private readonly configService: ConfigService,
@@ -88,6 +100,7 @@ export class ServerManagementService {
     this.BASE_DIR = this.configService.get('baseDir');
     this.COMPOSE_PROJECT = this.configService.get<string>('composeProject')?.trim() || undefined;
     fs.ensureDirSync(this.SERVERS_DIR);
+    fs.ensureDirSync(this.getGlobalWorldsPath());
   }
 
   private validateServerId(serverId: string): boolean {
@@ -104,6 +117,168 @@ export class ServerManagementService {
 
   private getMcDataPath(serverId: string): string {
     return path.join(this.SERVERS_DIR, serverId, 'mc-data');
+  }
+
+  private getWorldsPath(serverId: string): string {
+    return path.join(this.SERVERS_DIR, serverId, 'worlds');
+  }
+
+  private getLegacyWorldsPath(serverId: string): string {
+    return path.join(this.getMcDataPath(serverId), 'worlds');
+  }
+
+  private getGlobalWorldsPath(): string {
+    return path.join(this.SERVERS_DIR, '.world', 'worlds');
+  }
+
+  private sanitizeLevelName(input: string): string {
+    const trimmed = input.trim();
+    if (!trimmed) return 'world';
+    return trimmed.replaceAll(/[\\/]/g, '').trim() || 'world';
+  }
+
+  private getDefaultLevelNameFromSource(source: string): string {
+    return source
+      .replace(/\.tar\.gz$/i, '')
+      .replace(/\.tgz$/i, '')
+      .replace(/\.tar$/i, '')
+      .replace(/\.zip$/i, '');
+  }
+
+  private isSupportedWorldArchive(fileName: string): boolean {
+    return /\.(zip|tar|tar\.gz|tgz)$/i.test(fileName);
+  }
+
+  private async hasLevelDat(worldPath: string): Promise<boolean> {
+    const directLevelDat = path.join(worldPath, 'level.dat');
+    return fs.pathExists(directLevelDat);
+  }
+
+  private async worldWasCopied(serverId: string, levelName: string): Promise<boolean> {
+    const expectedLevelPath = path.join(this.getMcDataPath(serverId), levelName, 'level.dat');
+    return fs.pathExists(expectedLevelPath);
+  }
+
+  private async migrateLegacyWorldsIfNeeded(serverId: string): Promise<void> {
+    const localWorldsPath = this.getWorldsPath(serverId);
+    const legacyWorldsPath = this.getLegacyWorldsPath(serverId);
+
+    const hasLegacy = await fs.pathExists(legacyWorldsPath);
+    if (!hasLegacy) return;
+
+    await fs.ensureDir(localWorldsPath);
+
+    const [legacyEntries, localEntries] = await Promise.all([fs.readdir(legacyWorldsPath), fs.readdir(localWorldsPath)]);
+
+    if (legacyEntries.length === 0 || localEntries.length > 0) return;
+
+    for (const entry of legacyEntries) {
+      const from = path.join(legacyWorldsPath, entry);
+      const to = path.join(localWorldsPath, entry);
+      if (await fs.pathExists(to)) continue;
+      await fs.move(from, to);
+    }
+  }
+
+  private async collectWorldSources(basePath: string, relativePath = '', depth = 0): Promise<Array<{ source: string; name: string; type: 'directory' | 'archive'; displayPath: string }>> {
+    if (depth > 8) return [];
+
+    const entries = await fs.readdir(basePath, { withFileTypes: true });
+    const worlds: Array<{ source: string; name: string; type: 'directory' | 'archive'; displayPath: string }> = [];
+
+    for (const entry of entries) {
+      const entryRelativePath = relativePath ? `${relativePath}/${entry.name}` : entry.name;
+      const entryFullPath = path.join(basePath, entry.name);
+
+      if (entry.isDirectory()) {
+        if (await this.hasLevelDat(entryFullPath)) {
+          worlds.push({
+            source: entryRelativePath,
+            name: entry.name,
+            type: 'directory',
+            displayPath: entryRelativePath,
+          });
+          continue;
+        }
+
+        const nestedWorlds = await this.collectWorldSources(entryFullPath, entryRelativePath, depth + 1);
+        worlds.push(...nestedWorlds);
+        continue;
+      }
+
+      if (!entry.isFile() || !this.isSupportedWorldArchive(entry.name)) {
+        continue;
+      }
+
+      worlds.push({
+        source: entryRelativePath,
+        name: entry.name,
+        type: 'archive',
+        displayPath: entryRelativePath,
+      });
+    }
+
+    return worlds;
+  }
+
+  async listAvailableWorlds(
+    serverId: string,
+    selectedWorldSource = '',
+    selectedLevelName = 'world',
+    selectedWorldScope: 'local' | 'global' = 'local',
+  ): Promise<AvailableWorld[]> {
+    if (!this.validateServerId(serverId)) {
+      return [];
+    }
+
+    const localWorldsPath = this.getWorldsPath(serverId);
+    const globalWorldsPath = this.getGlobalWorldsPath();
+    await fs.ensureDir(localWorldsPath);
+    await fs.ensureDir(globalWorldsPath);
+    await this.migrateLegacyWorldsIfNeeded(serverId);
+
+    const localSources = await this.collectWorldSources(localWorldsPath);
+    const globalSources = await this.collectWorldSources(globalWorldsPath);
+    const worlds: AvailableWorld[] = [];
+
+    for (const candidate of localSources) {
+      const scope: 'local' | 'global' = 'local';
+      const defaultLevelName = this.getDefaultLevelNameFromSource(candidate.name);
+      const isSelected = selectedWorldSource === candidate.source && selectedWorldScope === scope;
+      const levelName = isSelected ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
+
+      worlds.push({
+        name: candidate.name,
+        source: candidate.source,
+        scope,
+        type: candidate.type,
+        defaultLevelName,
+        displayPath: candidate.displayPath,
+        selected: isSelected,
+        copied: await this.worldWasCopied(serverId, levelName),
+      });
+    }
+
+    for (const candidate of globalSources) {
+      const scope: 'local' | 'global' = 'global';
+      const defaultLevelName = this.getDefaultLevelNameFromSource(candidate.name);
+      const isSelected = selectedWorldSource === candidate.source && selectedWorldScope === scope;
+      const levelName = isSelected ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
+
+      worlds.push({
+        name: candidate.name,
+        source: candidate.source,
+        scope,
+        type: candidate.type,
+        defaultLevelName,
+        displayPath: candidate.displayPath,
+        selected: isSelected,
+        copied: await this.worldWasCopied(serverId, levelName),
+      });
+    }
+
+    worlds.sort((a, b) => a.displayPath.localeCompare(b.displayPath));
+    return worlds;
   }
 
   private getComposeProjectName(serverId: string): string | undefined {
@@ -585,6 +760,9 @@ export class ServerManagementService {
       const directories = await fs.readdir(this.SERVERS_DIR);
       const serverDirectories = await Promise.all(
         directories.map(async (dir) => {
+          if (this.RESERVED_SERVER_DIRS.has(dir) || dir.startsWith('.')) {
+            return null;
+          }
           const fullPath = path.join(this.SERVERS_DIR, dir);
           const isDirectory = (await fs.stat(fullPath)).isDirectory();
           const hasDockerCompose = await fs.pathExists(this.getDockerComposePath(dir));
@@ -789,6 +967,9 @@ export class ServerManagementService {
       const directories = await fs.readdir(this.SERVERS_DIR);
       const serverDirectories = await Promise.all(
         directories.map(async (dir) => {
+          if (this.RESERVED_SERVER_DIRS.has(dir) || dir.startsWith('.')) {
+            return null;
+          }
           const fullPath = path.join(this.SERVERS_DIR, dir);
           const isDirectory = (await fs.stat(fullPath)).isDirectory();
           const hasDockerCompose = await fs.pathExists(this.getDockerComposePath(dir));

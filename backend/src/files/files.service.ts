@@ -19,6 +19,7 @@ export class FilesService {
 
   constructor(private readonly configService: ConfigService) {
     this.SERVERS_DIR = this.configService.get('serversDir');
+    fs.ensureDirSync(path.join(this.SERVERS_DIR, '.world', 'worlds'));
   }
 
   private getBasePath(serverId: string): string {
@@ -26,6 +27,12 @@ export class FilesService {
     if (serverId === '_root') {
       return this.SERVERS_DIR;
     }
+
+    // ".world" means global world library directory
+    if (serverId === '.world') {
+      return path.join(this.SERVERS_DIR, '.world', 'worlds');
+    }
+
     return path.join(this.SERVERS_DIR, serverId, 'mc-data');
   }
 

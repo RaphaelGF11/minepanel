@@ -174,10 +174,10 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
                     </TabsTrigger>
                   )}
 
-                  <TabsTrigger value="advanced" disabled={isServerRunning} className="flex text-gray-200 items-center gap-1 py-2 px-2 md:px-3 data-[state=active]:bg-emerald-600/20 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 font-minecraft text-xs md:text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                    <Code className="h-4 w-4 shrink-0" />
-                    <span className="hidden md:inline">{t("advanced")}</span>
-                  </TabsTrigger>
+                    <TabsTrigger value="advanced" disabled={isServerRunning} className="flex text-gray-200 items-center gap-1 py-2 px-2 md:px-3 data-[state=active]:bg-emerald-600/20 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 font-minecraft text-xs md:text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                      <Code className="h-4 w-4 shrink-0" />
+                      <span className="hidden md:inline">{t("advanced")}</span>
+                    </TabsTrigger>
 
                   <TabsTrigger value="logs" className="flex text-gray-200 items-center gap-1 py-2 px-2 md:px-3 data-[state=active]:bg-emerald-600/20 data-[state=active]:text-emerald-400 data-[state=active]:border-b-2 data-[state=active]:border-emerald-500 font-minecraft text-xs md:text-sm whitespace-nowrap">
                     <ScrollText className="h-4 w-4 shrink-0" />
@@ -207,7 +207,7 @@ export const ServerConfigTabs: FC<ServerConfigTabsProps> = ({ serverId, config, 
               </TabsContent>
 
               <TabsContent value="general" className="space-y-4 mt-0">
-                <GeneralSettingsTab config={config} updateConfig={updateConfig} />
+                <GeneralSettingsTab serverId={serverId} serverStatus={serverStatus} config={config} updateConfig={updateConfig} />
               </TabsContent>
 
               {showResourcesTab && (

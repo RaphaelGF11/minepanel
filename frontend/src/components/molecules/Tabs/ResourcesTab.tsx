@@ -4,9 +4,11 @@ import { ServerConfig } from "@/lib/types/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/lib/hooks/useLanguage";
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
 import { MemoryCpuTab } from "./ResourcesTabs/MemoryCpuTab";
 import { JvmOptionsTab } from "./ResourcesTabs/JvmOptionsTab";
 import { AdvancedResourcesTab } from "./ResourcesTabs/AdvancedResourcesTab";
+import { LINK_ADVANCED_CONFIGURATION } from "@/lib/providers/constants";
 
 interface ResourcesTabProps {
   config: ServerConfig;
@@ -19,11 +21,19 @@ export const ResourcesTab: FC<ResourcesTabProps> = ({ config, updateConfig }) =>
   return (
     <Card className="bg-gray-900/60 border-gray-700/50 shadow-lg">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl text-emerald-400 font-minecraft flex items-center gap-2">
-          <Image src="/images/diamond-pickaxe.webp" alt="Recursos" width={24} height={24} className="opacity-90" />
-          {t("serverResources")}
-        </CardTitle>
-        <CardDescription className="text-gray-300">{t("serverResourcesDesc")}</CardDescription>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-xl text-emerald-400 font-minecraft flex items-center gap-2">
+              <Image src="/images/diamond-pickaxe.webp" alt="Recursos" width={24} height={24} className="opacity-90" />
+              {t("serverResources")}
+            </CardTitle>
+            <CardDescription className="text-gray-300">{t("serverResourcesDesc")}</CardDescription>
+          </div>
+          <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
+            <BookOpen className="h-4 w-4" />
+            {t("documentation")}
+          </a>
+        </div>
       </CardHeader>
 
       <CardContent className="space-y-6">

@@ -23,6 +23,17 @@ Common issues and how to solve them.
 
 Before diving into specific problems, try these:
 
+<TerminalCommand
+  title="quick-checks"
+  command="docker compose ps"
+  :outputs="[
+    'NAME                  STATUS      PORTS',
+    'minepanel-frontend    Up          0.0.0.0:3000->3000/tcp',
+    'minepanel-backend     Up          0.0.0.0:8091->8091/tcp',
+    'Tip: run docker compose logs --tail 100 if any service is down'
+  ]"
+/>
+
 ```bash
 # Check if containers are running
 docker compose ps
@@ -39,6 +50,31 @@ docker compose restart
 ```
 
 ## Installation Issues
+
+### Worlds tab does not show my world
+
+**Symptoms:** Worlds list is empty or missing entries.
+
+**Checklist:**
+
+1. Upload world sources to either:
+   - `servers/<server-id>/worlds/` (local)
+   - `servers/.world/worlds/` (World Library, global)
+2. Supported formats:
+   - Folder containing `level.dat`
+   - `.zip`, `.tar`, `.tar.gz`, `.tgz`
+3. If the world is inside nested folders, ensure one of them contains `level.dat`
+
+### World switch applied but server starts old world
+
+**Symptoms:** You select a world, restart, but old level remains.
+
+**Cause:** By default, `WORLD` only copies if target level doesn't exist.
+
+**Solution:**
+
+- Enable **Force world copy** in the Worlds tab (`FORCE_WORLD_COPY=TRUE`)
+- Or choose a different `LEVEL` name so a new target folder is created
 
 ### Docker Not Found
 

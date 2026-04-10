@@ -62,6 +62,10 @@ export interface ServerConfig {
   allowFlight: boolean;
   gameMode: 'survival' | 'creative' | 'adventure' | 'spectator';
   seed?: string;
+  worldSource?: string;
+  worldScope?: 'local' | 'global';
+  worldLevelName?: string;
+  forceWorldCopy?: boolean;
   levelType:
     | 'minecraft:default'
     | 'minecraft:flat'
@@ -233,4 +237,15 @@ export interface ServerConfig {
   texturepackRequired?: boolean;
   serverPortV6?: string;
   whiteList?: boolean;
+}
+
+export interface AvailableWorld {
+  name: string;
+  source: string;
+  scope: 'local' | 'global';
+  type: 'directory' | 'archive';
+  defaultLevelName: string;
+  displayPath: string;
+  selected: boolean;
+  copied: boolean;
 }

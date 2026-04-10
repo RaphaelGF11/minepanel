@@ -1,13 +1,14 @@
 import { Controller, Get, Post, Body, Param, NotFoundException, Put, Query, BadRequestException, ValidationPipe, Delete, UseGuards, Request } from '@nestjs/common';
 import { DockerComposeService } from 'src/docker-compose/docker-compose.service';
 import { ServerManagementService } from './server-management.service';
-import { UpdateServerConfigDto } from './dto/server-config.model';
+import { ServerConfig, UpdateServerConfigDto } from './dto/server-config.model';
 import { ServerListItemDto } from './dto/server-list-item.dto';
 import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 import { SettingsService } from 'src/users/services/settings.service';
 import { PayloadToken } from 'src/auth/models/token.model';
 import { ProxyService } from 'src/proxy/proxy.service';
 import { ExecuteCommandDto } from './dto/execute-command.dto';
+import { SelectWorldDto } from './dto/select-world.dto';
 
 const JAVA_SERVER_DEFAULT_KEYS = new Set([
   'onlineMode',
@@ -256,6 +257,80 @@ export class ServerManagementController {
     }
 
     return updatedConfig;
+  }
+
+  @Get(':id/worlds')
+  async getServerWorlds(@Param('id') id: string) {
+    const config = await this.dockerComposeService.getServerConfig(id);
+    if (!config) {
+      throw new NotFoundException(`Server with ID "${id}" not found`);
+    }
+
+    if ((config.edition ?? 'JAVA') !== 'JAVA') {
+      throw new BadRequestException('World source switching is only available for Java Edition servers');
+    }
+
+    return this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName, config.worldScope ?? 'local');
+  }
+
+  @Put(':id/worlds/select')
+  async selectServerWorld(
+    @Request() req,
+    @Param('id') id: string,
+    @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })) body: SelectWorldDto,
+  ) {
+    const config = await this.dockerComposeService.getServerConfig(id);
+    if (!config) {
+      throw new NotFoundException(`Server with ID "${id}" not found`);
+    }
+
+    if ((config.edition ?? 'JAVA') !== 'JAVA') {
+      throw new BadRequestException('World source switching is only available for Java Edition servers');
+    }
+
+    const worldLevelName = body.worldLevelName?.trim();
+    if (!worldLevelName) {
+      throw new BadRequestException('worldLevelName is required');
+    }
+
+    const selectedScope = body.worldScope ?? 'local';
+    const availableWorlds = await this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName, config.worldScope ?? 'local');
+    const selectedWorld = availableWorlds.find((world) => world.source === body.worldSource && world.scope === selectedScope);
+    if (!selectedWorld) {
+      throw new BadRequestException('Selected world source was not found in local or world library sources');
+    }
+
+    const user = req.user as PayloadToken;
+    const settings = await this.settingsService.getSettings(user.userId);
+    const proxyEnabled = settings.preferences?.proxyEnabled && !!settings.preferences?.proxyBaseDomain;
+
+    const nextConfig: Partial<ServerConfig> = {
+      worldSource: body.worldSource,
+      worldScope: selectedScope,
+      worldLevelName,
+      forceWorldCopy: body.forceWorldCopy === true,
+      cfSetLevelFrom: '',
+    };
+
+    const updatedConfig = await this.dockerComposeService.updateServerConfig(id, nextConfig, proxyEnabled);
+    if (!updatedConfig) {
+      throw new NotFoundException(`Server with ID "${id}" not found`);
+    }
+
+    const shouldRestart = body.restartIfRunning !== false;
+    let restarted = false;
+    if (shouldRestart) {
+      const status = await this.managementService.getServerStatus(id);
+      if (status === 'running' || status === 'starting') {
+        restarted = await this.managementService.restartServer(id);
+      }
+    }
+
+    return {
+      success: true,
+      restarted,
+      config: updatedConfig,
+    };
   }
 
   @Post(':id/restart')
