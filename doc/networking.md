@@ -1,6 +1,6 @@
 ---
 title: Networking - Minepanel
-description: Remote access, SSL, proxy configuration.
+description: Complete Minepanel networking guide - Remote access, firewall ports, SSL/HTTPS reverse proxy setup, Cloudflare Tunnel, and Java/Bedrock connectivity troubleshooting.
 ---
 
 # Networking

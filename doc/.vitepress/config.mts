@@ -6,6 +6,7 @@ const hostname = 'https://minepanel.ketbome.com';
 // https://vitepress.dev/reference/site-config
 export default withMermaid(
   defineConfig({
+    lang: 'en-US',
     title: 'Minepanel',
     description:
       'Free open source Minecraft server management panel for Java and Bedrock Edition. Self-hosted Docker-based alternative to Pterodactyl and Aternos. Manage Paper, Forge, Fabric, Spigot, Purpur, and Bedrock servers from one web UI.',
@@ -131,10 +132,18 @@ export default withMermaid(
       const canonicalPath = pagePath ? `/${pagePath}` : '/';
       const canonicalUrl = `${hostname}${canonicalPath}`;
       const normalizedPagePath = pagePath.toLowerCase();
+      const title = pageData.frontmatter.title || pageData.title || 'Minepanel';
+      const description =
+        pageData.frontmatter.description ||
+        'Free open source Minecraft server management panel for Java and Bedrock Edition.';
 
       head.push(
         ['link', { rel: 'canonical', href: canonicalUrl }],
         ['meta', { property: 'og:url', content: canonicalUrl }],
+        ['meta', { property: 'og:title', content: title }],
+        ['meta', { property: 'og:description', content: description }],
+        ['meta', { name: 'twitter:title', content: title }],
+        ['meta', { name: 'twitter:description', content: description }],
       );
 
       if (normalizedPagePath === 'agents') {
@@ -142,17 +151,6 @@ export default withMermaid(
           ['meta', { name: 'robots', content: 'noindex, nofollow' }],
           ['meta', { name: 'googlebot', content: 'noindex, nofollow' }],
         );
-      }
-
-      // Use page title/description for Twitter if not set in frontmatter
-      if (pageData.frontmatter.title) {
-        head.push(['meta', { name: 'twitter:title', content: pageData.frontmatter.title }]);
-      }
-      if (pageData.frontmatter.description) {
-        head.push([
-          'meta',
-          { name: 'twitter:description', content: pageData.frontmatter.description },
-        ]);
       }
 
       return head;
@@ -314,23 +312,45 @@ export default withMermaid(
       hostname: 'https://minepanel.ketbome.com',
       lastmodDateOnly: false,
       transformItems: (items) => {
-        const filteredItems = items.filter((item) => !/(^|\/)agents(?:\/)?$/i.test(item.url));
+        const normalizedPath = (rawUrl: string) => {
+          if (!rawUrl) return '/';
+
+          try {
+            const parsed = new URL(rawUrl, `${hostname}/`);
+            return parsed.pathname.replace(/\/+$/, '') || '/';
+          } catch {
+            return rawUrl.replace(/\/+$/, '') || '/';
+          }
+        };
+
+        const priorities: Record<string, number> = {
+          '/': 1,
+          '/getting-started': 0.95,
+          '/installation': 0.95,
+          '/configuration': 0.9,
+          '/features': 0.9,
+          '/server-types': 0.85,
+          '/networking': 0.85,
+          '/troubleshooting': 0.85,
+        };
+
+        const changefreqMap: Record<string, string> = {
+          '/': 'weekly',
+          '/getting-started': 'weekly',
+          '/installation': 'weekly',
+          '/configuration': 'weekly',
+          '/features': 'weekly',
+        };
+
+        const filteredItems = items.filter((item) => {
+          const path = normalizedPath(item.url).toLowerCase();
+          return !path.startsWith('/agents') && path !== '/404';
+        });
 
         return filteredItems.map((item) => {
-          let priority = 0.7;
-          const isHome = item.url === hostname || item.url === `${hostname}/`;
-
-          if (isHome) {
-            priority = 1;
-          } else if (item.url.includes('getting-started')) {
-            priority = 0.9;
-          } else if (item.url.includes('installation')) {
-            priority = 0.9;
-          } else if (item.url.includes('configuration')) {
-            priority = 0.8;
-          }
-
-          const changefreq = isHome ? 'weekly' : 'monthly';
+          const path = normalizedPath(item.url).toLowerCase();
+          const priority = priorities[path] ?? 0.7;
+          const changefreq = changefreqMap[path] ?? 'monthly';
 
           return {
             ...item,
