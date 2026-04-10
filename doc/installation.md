@@ -13,6 +13,18 @@ head:
 
 ## Quick Install (Recommended)
 
+<TerminalCommand
+  title="install-flow"
+  command="docker compose up -d"
+  :outputs="[
+    '[+] Building 2.0s (12/12) FINISHED',
+    '[+] Running 3/3',
+    ' ✔ minepanel-backend   Started',
+    ' ✔ minepanel-frontend  Started',
+    ' ✔ minepanel-db        Started'
+  ]"
+/>
+
 ```bash
 git clone https://github.com/Ketbome/minepanel.git
 cd minepanel
@@ -50,6 +62,18 @@ Use this only on trusted networks and prefer HTTPS.
 :::
 
 ## Update
+
+<TerminalCommand
+  title="update-flow"
+  command="docker compose pull && docker compose up -d"
+  :outputs="[
+    'Pulling frontend ... done',
+    'Pulling backend  ... done',
+    '[+] Running 3/3',
+    ' ✔ Containers updated successfully'
+  ]"
+  :typing-ms="2600"
+/>
 
 ```bash
 cd minepanel

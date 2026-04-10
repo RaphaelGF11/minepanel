@@ -32,6 +32,16 @@ flowchart TB
 
 ## Remote Access
 
+<TerminalCommand
+  title="remote-access"
+  command="docker compose restart"
+  :outputs="[
+    'Restarting minepanel-frontend ... done',
+    'Restarting minepanel-backend  ... done',
+    'Minepanel is now available at your LAN IP'
+  ]"
+/>
+
 Update `docker-compose.yml`:
 
 ```yaml
@@ -114,12 +124,7 @@ sudo ufw allow 19132/udp
 
 ## SSL/HTTPS
 
-```mermaid
-flowchart LR
-    User["👤"] -->|"HTTPS :443"| Proxy["🔒 Nginx/Caddy"]
-    Proxy --> FE[":3000"]
-    Proxy --> BE[":8091"]
-```
+<NetworkPulseFlow />
 
 ### Nginx + Let's Encrypt
 

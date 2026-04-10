@@ -41,11 +41,28 @@ flowchart LR
     style C fill:#065f46,stroke:#22c55e,color:#fff
 ```
 
-```bash
-git clone https://github.com/Ketbome/minepanel.git
-cd minepanel
-docker compose up -d
-```
+<TerminalSequence
+  title="first-install"
+  :steps="[
+    {
+      command: 'git clone https://github.com/Ketbome/minepanel.git',
+      outputs: ['Cloning into \'minepanel\'...']
+    },
+    {
+      command: 'cd minepanel',
+      outputs: ['Now in ./minepanel']
+    },
+    {
+      command: 'docker compose up -d',
+      outputs: [
+        '[+] Running 3/3',
+        ' ✔ minepanel-backend   Started',
+        ' ✔ minepanel-frontend  Started',
+        ' ✔ minepanel-db        Started'
+      ]
+    }
+  ]"
+/>
 
 **Access:** http://localhost:3000
 

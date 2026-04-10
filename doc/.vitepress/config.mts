@@ -16,13 +16,20 @@ export default withMermaid(
       ['link', { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' }],
       ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com', crossorigin: '' }],
       ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
+      [
+        'link',
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Press+Start+2P&display=swap',
+        },
+      ],
 
       // Icons & PWA
       ['link', { rel: 'icon', href: '/favicon.ico', sizes: '48x48' }],
       ['link', { rel: 'manifest', href: '/manifest.json' }],
       ['link', { rel: 'apple-touch-icon', href: '/cubo.webp', sizes: '512x512' }],
-      ['meta', { name: 'theme-color', content: '#3eaf7c', media: '(prefers-color-scheme: light)' }],
-      ['meta', { name: 'theme-color', content: '#1a1a1a', media: '(prefers-color-scheme: dark)' }],
+      ['meta', { name: 'theme-color', content: '#4f7f3d', media: '(prefers-color-scheme: light)' }],
+      ['meta', { name: 'theme-color', content: '#11170f', media: '(prefers-color-scheme: dark)' }],
       ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
       ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }],
       ['meta', { name: 'apple-mobile-web-app-title', content: 'Minepanel' }],
