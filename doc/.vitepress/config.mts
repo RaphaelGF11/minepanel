@@ -144,6 +144,11 @@ export default withMermaid(
         ['meta', { property: 'og:description', content: description }],
         ['meta', { name: 'twitter:title', content: title }],
         ['meta', { name: 'twitter:description', content: description }],
+        [
+          'script',
+          {},
+          String.raw`(function(){var p=window.location.pathname;if(!p||!p.endsWith('.html'))return;var clean=p==='/'||p==='/index.html'?'/':p.replace(/\.html$/, '');if(clean!==p){window.location.replace(clean+window.location.search+window.location.hash);}})();`,
+        ],
       );
 
       if (normalizedPagePath === 'agents') {

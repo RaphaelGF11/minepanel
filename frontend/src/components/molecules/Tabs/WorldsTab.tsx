@@ -23,7 +23,6 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
   const [saving, setSaving] = useState(false);
   const [selectedSource, setSelectedSource] = useState(config.worldSource ?? "");
   const [selectedScope, setSelectedScope] = useState<"local" | "global">(config.worldScope ?? "local");
-  const [sourceFilter, setSourceFilter] = useState<"all" | "local" | "global">("all");
   const [worldLevelName, setWorldLevelName] = useState(config.worldLevelName || "world");
   const [forceWorldCopy, setForceWorldCopy] = useState(config.forceWorldCopy ?? false);
 
@@ -98,7 +97,64 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
   };
 
   const isServerRunning = serverStatus === "running" || serverStatus === "starting";
-  const visibleWorlds = worlds.filter((world) => sourceFilter === "all" || world.scope === sourceFilter);
+  const localWorlds = worlds.filter((world) => world.scope === "local");
+  const globalWorlds = worlds.filter((world) => world.scope === "global");
+  const globalWorldGroups = globalWorlds.reduce<Record<string, AvailableWorld[]>>((acc, world) => {
+    const [groupName, ...rest] = world.displayPath.split("/");
+    const key = rest.length > 0 ? groupName : "_root";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(world);
+    return acc;
+  }, {});
+  const sortedGlobalGroupNames = Object.keys(globalWorldGroups).sort((a, b) => a.localeCompare(b));
+
+  const getWorldTitle = (world: AvailableWorld, trimPrefix?: string) => {
+    if (!trimPrefix) return world.displayPath;
+    const prefix = `${trimPrefix}/`;
+    if (world.displayPath.startsWith(prefix)) {
+      return world.displayPath.slice(prefix.length);
+    }
+    return world.displayPath;
+  };
+
+  const renderWorldList = (sectionWorlds: AvailableWorld[], trimPrefix?: string) => {
+    if (loading) {
+      return <p className="text-sm text-gray-400">{t("loading")}</p>;
+    }
+
+    if (sectionWorlds.length === 0) {
+      return <p className="text-sm text-gray-400">{t("worldsEmpty")}</p>;
+    }
+
+    return sectionWorlds.map((world) => (
+      <button
+        key={`${world.scope}:${world.source}`}
+        type="button"
+        onClick={() => handlePickWorld(world)}
+        className={`w-full rounded-md border px-3 py-2 text-left transition-colors ${
+          selectedSource === world.source && selectedScope === world.scope
+            ? "border-emerald-500/70 bg-emerald-900/20"
+            : "border-gray-700/60 bg-gray-800/40 hover:border-gray-600"
+        }`}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-sm text-gray-100">{getWorldTitle(world, trimPrefix)}</p>
+            <p className="text-xs text-gray-400">{world.type === "directory" ? t("worldTypeFolder") : t("worldTypeArchive")}</p>
+          </div>
+          <div className="flex gap-2">
+            {selectedSource === world.source && selectedScope === world.scope && <Badge variant="secondary">{t("selected")}</Badge>}
+            <Badge
+              variant={world.copied ? "default" : "outline"}
+              className={world.copied ? "" : "border-amber-500/70 text-amber-200 bg-amber-900/30"}
+            >
+              {world.copied ? t("worldCopied") : t("worldNotCopied")}
+            </Badge>
+          </div>
+        </div>
+      </button>
+    ));
+  };
 
   return (
     <Card className="bg-gray-900/60 border-gray-700/50 shadow-lg">
@@ -111,56 +167,43 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
           {isServerRunning ? t("worldsRestartNoticeRunning") : t("worldsRestartNoticeStopped")}
         </div>
 
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setSourceFilter("all")} className={sourceFilter === "all" ? "border-emerald-500/70 text-emerald-300 bg-emerald-900/20" : "border-gray-600 text-gray-300"}>
-              {t("allLabel")}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => setSourceFilter("local")} className={sourceFilter === "local" ? "border-emerald-500/70 text-emerald-300 bg-emerald-900/20" : "border-gray-600 text-gray-300"}>
-              {t("worldSourceLocal")}
-            </Button>
-            <Button type="button" variant="outline" size="sm" onClick={() => setSourceFilter("global")} className={sourceFilter === "global" ? "border-emerald-500/70 text-emerald-300 bg-emerald-900/20" : "border-gray-600 text-gray-300"}>
-              {t("worldSourceLibrary")}
-            </Button>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <div className="space-y-2 rounded-md border border-gray-700/60 bg-gray-900/30 p-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-blue-300">{t("worldSourceLocal")}</h4>
+              <Badge variant="outline" className="border-blue-500/50 text-blue-300 bg-blue-950/20">{localWorlds.length}</Badge>
+            </div>
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {renderWorldList(localWorlds)}
+            </div>
           </div>
 
-          {loading ? (
-            <p className="text-sm text-gray-400">{t("loading")}</p>
-          ) : visibleWorlds.length === 0 ? (
-            <p className="text-sm text-gray-400">{t("worldsEmpty")}</p>
-          ) : (
-            visibleWorlds.map((world) => (
-              <button
-                key={`${world.scope}:${world.source}`}
-                type="button"
-                onClick={() => handlePickWorld(world)}
-                className={`w-full rounded-md border px-3 py-2 text-left transition-colors ${
-                  selectedSource === world.source && selectedScope === world.scope
-                    ? "border-emerald-500/70 bg-emerald-900/20"
-                    : "border-gray-700/60 bg-gray-800/40 hover:border-gray-600"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="text-sm text-gray-100">{world.displayPath}</p>
-                    <p className="text-xs text-gray-400">{world.type === "directory" ? t("worldTypeFolder") : t("worldTypeArchive")}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant="outline" className="border-blue-500/50 text-blue-300 bg-blue-950/20">
-                      {world.scope === "global" ? t("worldSourceLibrary") : t("worldSourceLocal")}
-                    </Badge>
-                    {world.selected && <Badge variant="secondary">{t("selected")}</Badge>}
-                    <Badge
-                      variant={world.copied ? "default" : "outline"}
-                      className={world.copied ? "" : "border-amber-500/70 text-amber-200 bg-amber-900/30"}
-                    >
-                      {world.copied ? t("worldCopied") : t("worldNotCopied")}
-                    </Badge>
-                  </div>
+          <div className="space-y-2 rounded-md border border-gray-700/60 bg-gray-900/30 p-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-cyan-300">{t("worldSourceLibrary")}</h4>
+              <Badge variant="outline" className="border-cyan-500/50 text-cyan-300 bg-cyan-950/20">{globalWorlds.length}</Badge>
+            </div>
+            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+              {loading ? (
+                <p className="text-sm text-gray-400">{t("loading")}</p>
+              ) : globalWorlds.length === 0 ? (
+                <p className="text-sm text-gray-400">{t("worldsEmpty")}</p>
+              ) : (
+                <div className="space-y-3">
+                  {sortedGlobalGroupNames.map((groupName) => (
+                    <div key={groupName} className="rounded-md border border-cyan-900/50 bg-cyan-950/10 p-2">
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-cyan-300">
+                        {groupName === "_root" ? t("worldSourceLibrary") : groupName}
+                      </p>
+                      <div className="space-y-2">
+                        {renderWorldList(globalWorldGroups[groupName], groupName === "_root" ? undefined : groupName)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </button>
-            ))
-          )}
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -188,7 +231,7 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
           </div>
         </div>
 
-        <Button type="button" onClick={handleApply} disabled={saving || loading || visibleWorlds.length === 0} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+        <Button type="button" onClick={handleApply} disabled={saving || loading || worlds.length === 0} className="bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500/40">
           {saving ? t("saving") : t("applyWorldAndRestart")}
         </Button>
       </CardContent>
