@@ -120,6 +120,10 @@ export class ServerManagementService {
   }
 
   private getWorldsPath(serverId: string): string {
+    return path.join(this.SERVERS_DIR, serverId, 'worlds');
+  }
+
+  private getLegacyWorldsPath(serverId: string): string {
     return path.join(this.getMcDataPath(serverId), 'worlds');
   }
 
@@ -153,6 +157,27 @@ export class ServerManagementService {
   private async worldWasCopied(serverId: string, levelName: string): Promise<boolean> {
     const expectedLevelPath = path.join(this.getMcDataPath(serverId), levelName, 'level.dat');
     return fs.pathExists(expectedLevelPath);
+  }
+
+  private async migrateLegacyWorldsIfNeeded(serverId: string): Promise<void> {
+    const localWorldsPath = this.getWorldsPath(serverId);
+    const legacyWorldsPath = this.getLegacyWorldsPath(serverId);
+
+    const hasLegacy = await fs.pathExists(legacyWorldsPath);
+    if (!hasLegacy) return;
+
+    await fs.ensureDir(localWorldsPath);
+
+    const [legacyEntries, localEntries] = await Promise.all([fs.readdir(legacyWorldsPath), fs.readdir(localWorldsPath)]);
+
+    if (legacyEntries.length === 0 || localEntries.length > 0) return;
+
+    for (const entry of legacyEntries) {
+      const from = path.join(legacyWorldsPath, entry);
+      const to = path.join(localWorldsPath, entry);
+      if (await fs.pathExists(to)) continue;
+      await fs.move(from, to);
+    }
   }
 
   private async collectWorldSources(basePath: string, relativePath = '', depth = 0): Promise<Array<{ source: string; name: string; type: 'directory' | 'archive'; displayPath: string }>> {
@@ -210,6 +235,7 @@ export class ServerManagementService {
     const globalWorldsPath = this.getGlobalWorldsPath();
     await fs.ensureDir(localWorldsPath);
     await fs.ensureDir(globalWorldsPath);
+    await this.migrateLegacyWorldsIfNeeded(serverId);
 
     const localSources = await this.collectWorldSources(localWorldsPath);
     const globalSources = await this.collectWorldSources(globalWorldsPath);

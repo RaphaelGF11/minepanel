@@ -23,6 +23,17 @@ Common issues and how to solve them.
 
 Before diving into specific problems, try these:
 
+<TerminalCommand
+  title="quick-checks"
+  command="docker compose ps"
+  :outputs="[
+    'NAME                  STATUS      PORTS',
+    'minepanel-frontend    Up          0.0.0.0:3000->3000/tcp',
+    'minepanel-backend     Up          0.0.0.0:8091->8091/tcp',
+    'Tip: run docker compose logs --tail 100 if any service is down'
+  ]"
+/>
+
 ```bash
 # Check if containers are running
 docker compose ps
@@ -47,7 +58,7 @@ docker compose restart
 **Checklist:**
 
 1. Upload world sources to either:
-   - `servers/<server-id>/mc-data/worlds/` (local)
+   - `servers/<server-id>/worlds/` (local)
    - `servers/.world/worlds/` (World Library, global)
 2. Supported formats:
    - Folder containing `level.dat`

@@ -1356,9 +1356,9 @@ export const de: Record<TranslationKey, string> = {
 
   // Worlds tab
   worlds: 'Welten',
-  worldsDescription: 'Weltquelle aus mc-data/worlds wählen und mit automatischem Neustart wechseln.',
+  worldsDescription: 'Weltquelle aus den Server-Welten wählen und mit automatischem Neustart wechseln.',
   worldsLoadError: 'Fehler beim Laden verfügbarer Welten',
-  worldsEmpty: 'Keine Welten gefunden. Lade einen Ordner (mit level.dat) oder ZIP/TAR in lokales mc-data/worlds oder in die World Library hoch.',
+  worldsEmpty: 'Keine Welten gefunden. Lade einen Ordner (mit level.dat) oder ZIP/TAR in lokales servers/<id>/worlds oder in die World Library hoch.',
   worldsRestartNoticeRunning: 'Der Server läuft. Beim Anwenden wird der Server automatisch neu gestartet.',
   worldsRestartNoticeStopped: 'Der Server ist gestoppt. Die ausgewählte Welt wird beim nächsten Start angewendet.',
   allLabel: 'Alle',

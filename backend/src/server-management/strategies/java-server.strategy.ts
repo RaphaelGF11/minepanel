@@ -167,7 +167,7 @@ export class JavaServerStrategy implements IServerStrategy {
         env['WORLD'] = config.worldSource;
       } else {
         const worldScope = config.worldScope ?? 'local';
-        env['WORLD'] = worldScope === 'global' ? `/worlds/global/${config.worldSource}` : `/worlds/local/${config.worldSource}`;
+        env['WORLD'] = worldScope === 'global' ? `/data/.world-library/global/${config.worldSource}` : `/data/.world-library/local/${config.worldSource}`;
       }
     }
 

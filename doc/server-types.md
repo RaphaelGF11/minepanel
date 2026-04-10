@@ -135,7 +135,7 @@ Command output appears in server logs, not as a direct response. Check the Logs 
 
 Minepanel includes world source management in **General -> World** for Java servers. It uses `WORLD`, `LEVEL`, and `FORCE_WORLD_COPY` from `itzg/docker-minecraft-server`.
 
-- Local world sources per server: `servers/<server-id>/mc-data/worlds/`
+- Local world sources per server: `servers/<server-id>/worlds/`
 - Global world library shared by all servers: `servers/.world/worlds/`
 - Supported sources:
   - Folder containing `level.dat`

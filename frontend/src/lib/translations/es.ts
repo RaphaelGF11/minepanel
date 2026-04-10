@@ -1349,9 +1349,9 @@ export const es: Record<TranslationKey, string> = {
 
   // Pestaña de mundos
   worlds: 'Mundos',
-  worldsDescription: 'Selecciona un origen de mundo desde mc-data/worlds y cambia con reinicio automático.',
+  worldsDescription: 'Selecciona un origen de mundo desde worlds del servidor y cambia con reinicio automático.',
   worldsLoadError: 'Error cargando mundos disponibles',
-  worldsEmpty: 'No se encontraron mundos. Sube una carpeta (con level.dat) o ZIP/TAR a mc-data/worlds local o a World Library.',
+  worldsEmpty: 'No se encontraron mundos. Sube una carpeta (con level.dat) o ZIP/TAR a servers/<id>/worlds local o a World Library.',
   worldsRestartNoticeRunning: 'El servidor está en ejecución. Al aplicar un mundo se reiniciará automáticamente.',
   worldsRestartNoticeStopped: 'El servidor está detenido. El mundo seleccionado se aplicará en el próximo inicio.',
   allLabel: 'Todos',

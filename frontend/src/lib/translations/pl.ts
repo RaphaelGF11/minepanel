@@ -1335,9 +1335,9 @@ export const pl: Record<TranslationKey, string> = {
 
   // Worlds tab
   worlds: 'Światy',
-  worldsDescription: 'Wybierz źródło świata z mc-data/worlds i przełącz z automatycznym restartem.',
+  worldsDescription: 'Wybierz źródło świata z folderu światów serwera i przełącz z automatycznym restartem.',
   worldsLoadError: 'Błąd ładowania dostępnych światów',
-  worldsEmpty: 'Nie znaleziono światów. Wgraj folder (z level.dat) lub ZIP/TAR do lokalnego mc-data/worlds albo do World Library.',
+  worldsEmpty: 'Nie znaleziono światów. Wgraj folder (z level.dat) lub ZIP/TAR do lokalnego servers/<id>/worlds albo do World Library.',
   worldsRestartNoticeRunning: 'Serwer działa. Zastosowanie świata automatycznie zrestartuje serwer.',
   worldsRestartNoticeStopped: 'Serwer jest zatrzymany. Wybrany świat zostanie zastosowany przy następnym starcie.',
   allLabel: 'Wszystkie',

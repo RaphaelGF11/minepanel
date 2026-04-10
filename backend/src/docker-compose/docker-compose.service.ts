@@ -276,6 +276,8 @@ export class DockerComposeService {
     if (!world) return '';
     const trimmed = world.trim();
     if (!trimmed) return '';
+    if (trimmed.startsWith('/data/.world-library/local/')) return trimmed.slice('/data/.world-library/local/'.length);
+    if (trimmed.startsWith('/data/.world-library/global/')) return trimmed.slice('/data/.world-library/global/'.length);
     if (trimmed.startsWith('/worlds/local/')) return trimmed.slice('/worlds/local/'.length);
     if (trimmed.startsWith('/worlds/global/')) return trimmed.slice('/worlds/global/'.length);
     if (trimmed.startsWith('/worlds/')) return trimmed.slice('/worlds/'.length);
@@ -285,6 +287,7 @@ export class DockerComposeService {
   private parseWorldScope(world: string | undefined): 'local' | 'global' {
     if (!world) return 'local';
     const trimmed = world.trim();
+    if (trimmed.startsWith('/data/.world-library/global/')) return 'global';
     if (trimmed.startsWith('/worlds/global/')) return 'global';
     return 'local';
   }
@@ -764,7 +767,7 @@ export class DockerComposeService {
     await fs.ensureDir(serverPath);
     const mcDataPath = path.join(serverPath, 'mc-data');
     await fs.ensureDir(mcDataPath);
-    await fs.ensureDir(path.join(mcDataPath, 'worlds'));
+    await fs.ensureDir(path.join(serverPath, 'worlds'));
     await fs.ensureDir(path.join(this.SERVERS_DIR, '.world', 'worlds'));
 
     if (serverExists) {
@@ -1106,15 +1109,15 @@ export class DockerComposeService {
 
     const edition = config.edition ?? 'JAVA';
     if (edition === 'JAVA') {
-      const hasLocalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/worlds/local'));
-      const hasGlobalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/worlds/global'));
+      const hasLocalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/data/.world-library/local'));
+      const hasGlobalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/data/.world-library/global'));
 
       if (!hasLocalWorldsMount) {
-        volumes.push(`${path.join(this.BASE_DIR, 'servers', config.id, 'mc-data', 'worlds')}:/worlds/local:ro`);
+        volumes.push(`${path.join(this.BASE_DIR, 'servers', config.id, 'worlds')}:/data/.world-library/local:ro`);
       }
 
       if (!hasGlobalWorldsMount) {
-        volumes.push(`${path.join(this.BASE_DIR, 'servers', '.world', 'worlds')}:/worlds/global:ro`);
+        volumes.push(`${path.join(this.BASE_DIR, 'servers', '.world', 'worlds')}:/data/.world-library/global:ro`);
       }
     }
 
@@ -1125,8 +1128,11 @@ export class DockerComposeService {
     const parts = volume.split(':');
     if (parts.length < 2) return false;
     const mountTarget = parts[1];
-    if (target === '/worlds/local') {
-      return mountTarget === '/worlds/local' || mountTarget === '/worlds';
+    if (target === '/data/.world-library/local') {
+      return mountTarget === '/data/.world-library/local' || mountTarget === '/worlds/local' || mountTarget === '/worlds';
+    }
+    if (target === '/data/.world-library/global') {
+      return mountTarget === '/data/.world-library/global' || mountTarget === '/worlds/global';
     }
     return mountTarget === target;
   }
