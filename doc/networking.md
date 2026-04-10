@@ -66,6 +66,25 @@ hostname -I | awk '{print $1}'
 (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet").IPAddress
 ```
 
+## Connectivity Tab (per server)
+
+Minepanel server configuration includes **General -> Connectivity**.
+
+Key fields:
+
+| Field | What it affects |
+| --- | --- |
+| `serverPort` | Published game port (`25565` Java, `19132` Bedrock by default) |
+| `onlineMode` | Mojang auth verification for Java servers |
+| `preventProxyConnections` | Blocks bypass connections when using Java proxy routing |
+| `ops` | Operator usernames |
+| `opPermissionLevel` | Java op permission level (1-4) |
+
+Notes:
+
+- If Java proxy is enabled globally, port mapping may be controlled by proxy mode.
+- Bedrock uses UDP and does not use Java proxy routing.
+
 ## Ports
 
 | Service        | Default | Protocol | Description         |

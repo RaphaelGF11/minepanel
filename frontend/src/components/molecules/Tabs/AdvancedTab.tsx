@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useLanguage } from '@/lib/hooks/useLanguage';
 import Image from 'next/image';
 import { Switch } from '@/components/ui/switch';
-import { LINK_ADVANCED_CONFIGURATION, LINK_BACKUPS_SETTINGS } from '@/lib/providers/constants';
+import { LINK_BACKUPS_SETTINGS } from '@/lib/providers/constants';
 
 interface AdvancedTabProps {
   config: ServerConfig;
@@ -61,25 +61,17 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ config, updateConfig }) => {
   return (
     <Card className="bg-gray-900/60 border-gray-700/50 shadow-lg">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <CardTitle className="text-xl text-emerald-400 font-minecraft flex items-center gap-2">
-              <Image
-                src="/images/command-block.webp"
-                alt="Avanzado"
-                width={24}
-                height={24}
-                className="opacity-90"
-              />
-              {t('advancedConfig')}
-            </CardTitle>
-            <CardDescription className="text-gray-300">{t('advancedConfigDesc')}</CardDescription>
-          </div>
-          <a href={LINK_ADVANCED_CONFIGURATION} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
-            <BookOpen className="h-4 w-4" />
-            {t('documentation')}
-          </a>
-        </div>
+        <CardTitle className="text-xl text-emerald-400 font-minecraft flex items-center gap-2">
+          <Image
+            src="/images/command-block.webp"
+            alt="Avanzado"
+            width={24}
+            height={24}
+            className="opacity-90"
+          />
+          {t('advancedConfig')}
+        </CardTitle>
+        <CardDescription className="text-gray-300">{t('advancedConfigDesc')}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">

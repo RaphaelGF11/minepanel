@@ -133,7 +133,7 @@ Command output appears in server logs, not as a direct response. Check the Logs 
 
 ### World Sources (Folders/ZIP/TAR)
 
-Minepanel includes a **Worlds** tab for Java servers to switch world sources using `WORLD`, `LEVEL`, and `FORCE_WORLD_COPY` from `itzg/docker-minecraft-server`.
+Minepanel includes world source management in **General -> World** for Java servers. It uses `WORLD`, `LEVEL`, and `FORCE_WORLD_COPY` from `itzg/docker-minecraft-server`.
 
 - Store world sources in each server folder: `servers/<server-id>/mc-data/worlds/`
 - Supported sources:
@@ -142,7 +142,7 @@ Minepanel includes a **Worlds** tab for Java servers to switch world sources usi
 - The panel checks if the target level was already copied by looking for:
   `servers/<server-id>/mc-data/<LEVEL>/level.dat`
 
-When a world is selected from the Worlds tab, Minepanel updates compose config and restarts the server automatically if it is running.
+When a world is selected from **General -> World**, Minepanel updates compose config and restarts the server automatically if it is running.
 
 ### Vanilla
 
