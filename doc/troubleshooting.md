@@ -46,7 +46,9 @@ docker compose restart
 
 **Checklist:**
 
-1. Upload world sources to `servers/<server-id>/mc-data/worlds/`
+1. Upload world sources to either:
+   - `servers/<server-id>/mc-data/worlds/` (local)
+   - `servers/.world/worlds/` (World Library, global)
 2. Supported formats:
    - Folder containing `level.dat`
    - `.zip`, `.tar`, `.tar.gz`, `.tgz`

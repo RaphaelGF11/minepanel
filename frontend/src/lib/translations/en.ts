@@ -1329,9 +1329,12 @@ export const en = {
   worlds: 'Worlds',
   worldsDescription: 'Select a world source from mc-data/worlds and switch with automatic restart.',
   worldsLoadError: 'Error loading available worlds',
-  worldsEmpty: 'No worlds found. Upload a folder (with level.dat) or ZIP/TAR into mc-data/worlds from the file browser.',
+  worldsEmpty: 'No worlds found. Upload a folder (with level.dat) or ZIP/TAR into local mc-data/worlds or World Library.',
   worldsRestartNoticeRunning: 'The server is running. Applying a world will restart the server automatically.',
   worldsRestartNoticeStopped: 'The server is stopped. The selected world will apply on the next start.',
+  allLabel: 'All',
+  worldSourceLocal: 'Local',
+  worldSourceLibrary: 'World Library',
   worldTypeFolder: 'Folder',
   worldTypeArchive: 'Archive',
   worldCopied: 'Copied',
@@ -1346,6 +1349,8 @@ export const en = {
   forceWorldCopyDescription: 'Overwrite the target level on each start (FORCE_WORLD_COPY=TRUE).',
   applyWorldAndRestart: 'Apply world selection',
   selected: 'Selected',
+  worldLibrary: 'World Library',
+  worldLibraryDesc: 'Global worlds shared across all servers. Organize folders and archives here.',
 
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Survival',

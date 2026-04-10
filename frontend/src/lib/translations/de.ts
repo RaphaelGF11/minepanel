@@ -1358,9 +1358,12 @@ export const de: Record<TranslationKey, string> = {
   worlds: 'Welten',
   worldsDescription: 'Weltquelle aus mc-data/worlds wählen und mit automatischem Neustart wechseln.',
   worldsLoadError: 'Fehler beim Laden verfügbarer Welten',
-  worldsEmpty: 'Keine Welten gefunden. Lade einen Ordner (mit level.dat) oder ZIP/TAR nach mc-data/worlds hoch.',
+  worldsEmpty: 'Keine Welten gefunden. Lade einen Ordner (mit level.dat) oder ZIP/TAR in lokales mc-data/worlds oder in die World Library hoch.',
   worldsRestartNoticeRunning: 'Der Server läuft. Beim Anwenden wird der Server automatisch neu gestartet.',
   worldsRestartNoticeStopped: 'Der Server ist gestoppt. Die ausgewählte Welt wird beim nächsten Start angewendet.',
+  allLabel: 'Alle',
+  worldSourceLocal: 'Lokal',
+  worldSourceLibrary: 'World Library',
   worldTypeFolder: 'Ordner',
   worldTypeArchive: 'Archiv',
   worldCopied: 'Kopiert',
@@ -1375,6 +1378,8 @@ export const de: Record<TranslationKey, string> = {
   forceWorldCopyDescription: 'Ziel-Level bei jedem Start überschreiben (FORCE_WORLD_COPY=TRUE).',
   applyWorldAndRestart: 'Weltauswahl anwenden',
   selected: 'Ausgewählt',
+  worldLibrary: 'World Library',
+  worldLibraryDesc: 'Globale Welten, die von allen Servern genutzt werden können. Organisiere Ordner und Archive hier.',
 
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Überleben',

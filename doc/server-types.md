@@ -135,7 +135,8 @@ Command output appears in server logs, not as a direct response. Check the Logs 
 
 Minepanel includes world source management in **General -> World** for Java servers. It uses `WORLD`, `LEVEL`, and `FORCE_WORLD_COPY` from `itzg/docker-minecraft-server`.
 
-- Store world sources in each server folder: `servers/<server-id>/mc-data/worlds/`
+- Local world sources per server: `servers/<server-id>/mc-data/worlds/`
+- Global world library shared by all servers: `servers/.world/worlds/`
 - Supported sources:
   - Folder containing `level.dat`
   - Archive files: `.zip`, `.tar`, `.tar.gz`, `.tgz`
@@ -143,6 +144,8 @@ Minepanel includes world source management in **General -> World** for Java serv
   `servers/<server-id>/mc-data/<LEVEL>/level.dat`
 
 When a world is selected from **General -> World**, Minepanel updates compose config and restarts the server automatically if it is running.
+
+You can classify worlds using subfolders (for example `minigames/`, `skyblock/`, `modded/`) in both local and global libraries.
 
 ### Vanilla
 

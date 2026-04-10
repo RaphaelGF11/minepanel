@@ -22,6 +22,8 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedSource, setSelectedSource] = useState(config.worldSource ?? "");
+  const [selectedScope, setSelectedScope] = useState<"local" | "global">(config.worldScope ?? "local");
+  const [sourceFilter, setSourceFilter] = useState<"all" | "local" | "global">("all");
   const [worldLevelName, setWorldLevelName] = useState(config.worldLevelName || "world");
   const [forceWorldCopy, setForceWorldCopy] = useState(config.forceWorldCopy ?? false);
 
@@ -44,12 +46,14 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
 
   useEffect(() => {
     setSelectedSource(config.worldSource ?? "");
+    setSelectedScope(config.worldScope ?? "local");
     setWorldLevelName(config.worldLevelName || "world");
     setForceWorldCopy(config.forceWorldCopy ?? false);
-  }, [config.worldSource, config.worldLevelName, config.forceWorldCopy]);
+  }, [config.worldSource, config.worldScope, config.worldLevelName, config.forceWorldCopy]);
 
   const handlePickWorld = (world: AvailableWorld) => {
     setSelectedSource(world.source);
+    setSelectedScope(world.scope);
     if (!worldLevelName || worldLevelName === "world") {
       setWorldLevelName(world.defaultLevelName);
     }
@@ -71,12 +75,14 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
     try {
       const result = await selectServerWorld(serverId, {
         worldSource: selectedSource,
+        worldScope: selectedScope,
         worldLevelName: trimmedLevelName,
         forceWorldCopy,
         restartIfRunning: true,
       });
 
       updateConfig("worldSource", result.config.worldSource ?? selectedSource);
+      updateConfig("worldScope", result.config.worldScope ?? selectedScope);
       updateConfig("worldLevelName", result.config.worldLevelName ?? trimmedLevelName);
       updateConfig("forceWorldCopy", result.config.forceWorldCopy ?? forceWorldCopy);
       updateConfig("cfSetLevelFrom", "");
@@ -92,6 +98,7 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
   };
 
   const isServerRunning = serverStatus === "running" || serverStatus === "starting";
+  const visibleWorlds = worlds.filter((world) => sourceFilter === "all" || world.scope === sourceFilter);
 
   return (
     <Card className="bg-gray-900/60 border-gray-700/50 shadow-lg">
@@ -105,28 +112,43 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
         </div>
 
         <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setSourceFilter("all")} className={sourceFilter === "all" ? "border-emerald-500/70 text-emerald-300 bg-emerald-900/20" : "border-gray-600 text-gray-300"}>
+              {t("allLabel")}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setSourceFilter("local")} className={sourceFilter === "local" ? "border-emerald-500/70 text-emerald-300 bg-emerald-900/20" : "border-gray-600 text-gray-300"}>
+              {t("worldSourceLocal")}
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setSourceFilter("global")} className={sourceFilter === "global" ? "border-emerald-500/70 text-emerald-300 bg-emerald-900/20" : "border-gray-600 text-gray-300"}>
+              {t("worldSourceLibrary")}
+            </Button>
+          </div>
+
           {loading ? (
             <p className="text-sm text-gray-400">{t("loading")}</p>
-          ) : worlds.length === 0 ? (
+          ) : visibleWorlds.length === 0 ? (
             <p className="text-sm text-gray-400">{t("worldsEmpty")}</p>
           ) : (
-            worlds.map((world) => (
+            visibleWorlds.map((world) => (
               <button
-                key={world.source}
+                key={`${world.scope}:${world.source}`}
                 type="button"
                 onClick={() => handlePickWorld(world)}
                 className={`w-full rounded-md border px-3 py-2 text-left transition-colors ${
-                  selectedSource === world.source
+                  selectedSource === world.source && selectedScope === world.scope
                     ? "border-emerald-500/70 bg-emerald-900/20"
                     : "border-gray-700/60 bg-gray-800/40 hover:border-gray-600"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <p className="text-sm text-gray-100">{world.name}</p>
+                    <p className="text-sm text-gray-100">{world.displayPath}</p>
                     <p className="text-xs text-gray-400">{world.type === "directory" ? t("worldTypeFolder") : t("worldTypeArchive")}</p>
                   </div>
                   <div className="flex gap-2">
+                    <Badge variant="outline" className="border-blue-500/50 text-blue-300 bg-blue-950/20">
+                      {world.scope === "global" ? t("worldSourceLibrary") : t("worldSourceLocal")}
+                    </Badge>
                     {world.selected && <Badge variant="secondary">{t("selected")}</Badge>}
                     <Badge
                       variant={world.copied ? "default" : "outline"}
@@ -166,7 +188,7 @@ export const WorldsTab: FC<WorldsTabProps> = ({ serverId, serverStatus, config, 
           </div>
         </div>
 
-        <Button type="button" onClick={handleApply} disabled={saving || loading || worlds.length === 0} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+        <Button type="button" onClick={handleApply} disabled={saving || loading || visibleWorlds.length === 0} className="bg-emerald-600 hover:bg-emerald-700 text-white">
           {saving ? t("saving") : t("applyWorldAndRestart")}
         </Button>
       </CardContent>

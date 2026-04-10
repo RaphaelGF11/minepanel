@@ -20,11 +20,13 @@ export class DockerComposeService {
   private readonly logger = new Logger(DockerComposeService.name);
   private readonly SERVERS_DIR: string;
   private readonly BASE_DIR: string;
+  private readonly RESERVED_SERVER_DIRS = new Set(['.world']);
 
   constructor(private readonly configService: ConfigService) {
     this.SERVERS_DIR = this.configService.get('serversDir');
     this.BASE_DIR = this.configService.get('baseDir');
     fs.ensureDirSync(this.SERVERS_DIR);
+    fs.ensureDirSync(path.join(this.SERVERS_DIR, '.world', 'worlds'));
   }
 
   private validateServerId(serverId: string): boolean {
@@ -132,6 +134,7 @@ export class DockerComposeService {
         gameMode: env.MODE ?? 'survival',
         seed: env.SEED,
         worldSource: this.parseWorldSource(env.WORLD),
+        worldScope: this.parseWorldScope(env.WORLD),
         worldLevelName: env.LEVEL ?? 'world',
         forceWorldCopy: env.FORCE_WORLD_COPY === 'TRUE' || env.FORCE_WORLD_COPY === 'true',
         levelType: this.parseLevelType(env.LEVEL_TYPE, edition),
@@ -273,8 +276,17 @@ export class DockerComposeService {
     if (!world) return '';
     const trimmed = world.trim();
     if (!trimmed) return '';
+    if (trimmed.startsWith('/worlds/local/')) return trimmed.slice('/worlds/local/'.length);
+    if (trimmed.startsWith('/worlds/global/')) return trimmed.slice('/worlds/global/'.length);
     if (trimmed.startsWith('/worlds/')) return trimmed.slice('/worlds/'.length);
     return trimmed;
+  }
+
+  private parseWorldScope(world: string | undefined): 'local' | 'global' {
+    if (!world) return 'local';
+    const trimmed = world.trim();
+    if (trimmed.startsWith('/worlds/global/')) return 'global';
+    return 'local';
   }
 
   private extractCustomEnvVars(env: any): string {
@@ -507,6 +519,7 @@ export class DockerComposeService {
       gameMode: 'survival',
       seed: '',
       worldSource: '',
+      worldScope: 'local',
       worldLevelName: 'world',
       forceWorldCopy: false,
       levelType: 'minecraft:default',
@@ -665,7 +678,10 @@ export class DockerComposeService {
       }
 
       const entries = await fs.readdir(this.SERVERS_DIR, { withFileTypes: true });
-      const directories = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+      const directories = entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .filter((name) => !this.RESERVED_SERVER_DIRS.has(name) && !name.startsWith('.'));
 
       const serverIds = await Promise.all(
         directories.map(async (dir) => {
@@ -749,6 +765,7 @@ export class DockerComposeService {
     const mcDataPath = path.join(serverPath, 'mc-data');
     await fs.ensureDir(mcDataPath);
     await fs.ensureDir(path.join(mcDataPath, 'worlds'));
+    await fs.ensureDir(path.join(this.SERVERS_DIR, '.world', 'worlds'));
 
     if (serverExists) {
       this.logger.log(`Server directory "${id}" already exists, checking for uploaded data...`);
@@ -1088,18 +1105,30 @@ export class DockerComposeService {
       });
 
     const edition = config.edition ?? 'JAVA';
-    const hasWorldsMount = volumes.some((volume) => this.isWorldsMount(volume));
-    if (edition === 'JAVA' && !hasWorldsMount) {
-      volumes.push(`${path.join(this.BASE_DIR, 'servers', config.id, 'mc-data', 'worlds')}:/worlds:ro`);
+    if (edition === 'JAVA') {
+      const hasLocalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/worlds/local'));
+      const hasGlobalWorldsMount = volumes.some((volume) => this.hasMountTarget(volume, '/worlds/global'));
+
+      if (!hasLocalWorldsMount) {
+        volumes.push(`${path.join(this.BASE_DIR, 'servers', config.id, 'mc-data', 'worlds')}:/worlds/local:ro`);
+      }
+
+      if (!hasGlobalWorldsMount) {
+        volumes.push(`${path.join(this.BASE_DIR, 'servers', '.world', 'worlds')}:/worlds/global:ro`);
+      }
     }
 
     return volumes;
   }
 
-  private isWorldsMount(volume: string): boolean {
+  private hasMountTarget(volume: string, target: string): boolean {
     const parts = volume.split(':');
     if (parts.length < 2) return false;
-    return parts[1] === '/worlds';
+    const mountTarget = parts[1];
+    if (target === '/worlds/local') {
+      return mountTarget === '/worlds/local' || mountTarget === '/worlds';
+    }
+    return mountTarget === target;
   }
 
   private async ensurePortAvailable(config: ServerConfig): Promise<string> {

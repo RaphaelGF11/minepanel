@@ -28,7 +28,7 @@ export const getServerWorlds = async (serverId: string): Promise<AvailableWorld[
 
 export const selectServerWorld = async (
   serverId: string,
-  payload: { worldSource: string; worldLevelName: string; forceWorldCopy: boolean; restartIfRunning?: boolean },
+  payload: { worldSource: string; worldScope: 'local' | 'global'; worldLevelName: string; forceWorldCopy: boolean; restartIfRunning?: boolean },
 ): Promise<{ success: boolean; restarted: boolean; config: ServerConfig }> => {
   const response = await api.put(`/servers/${serverId}/worlds/select`, payload);
   return response.data;

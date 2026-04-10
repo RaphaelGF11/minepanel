@@ -1363,9 +1363,12 @@ export const nl: Record<TranslationKey, string> = {
   worlds: 'Werelden',
   worldsDescription: 'Selecteer een wereldbron uit mc-data/worlds en wissel met automatische herstart.',
   worldsLoadError: 'Fout bij laden van beschikbare werelden',
-  worldsEmpty: 'Geen werelden gevonden. Upload een map (met level.dat) of ZIP/TAR naar mc-data/worlds.',
+  worldsEmpty: 'Geen werelden gevonden. Upload een map (met level.dat) of ZIP/TAR naar lokaal mc-data/worlds of naar de World Library.',
   worldsRestartNoticeRunning: 'De server draait. Toepassen van een wereld herstart de server automatisch.',
   worldsRestartNoticeStopped: 'De server is gestopt. De geselecteerde wereld wordt toegepast bij de volgende start.',
+  allLabel: 'Alles',
+  worldSourceLocal: 'Lokaal',
+  worldSourceLibrary: 'World Library',
   worldTypeFolder: 'Map',
   worldTypeArchive: 'Archief',
   worldCopied: 'Gekopieerd',
@@ -1380,6 +1383,8 @@ export const nl: Record<TranslationKey, string> = {
   forceWorldCopyDescription: 'Doelniveau bij elke start overschrijven (FORCE_WORLD_COPY=TRUE).',
   applyWorldAndRestart: 'Wereldselectie toepassen',
   selected: 'Geselecteerd',
+  worldLibrary: 'World Library',
+  worldLibraryDesc: 'Globale werelden gedeeld tussen alle servers. Organiseer mappen en archieven hier.',
 
   // BEDROCK TEMPLATES
   bedrockSurvival: 'Bedrock Survival',

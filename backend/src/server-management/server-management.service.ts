@@ -74,8 +74,10 @@ export interface CommandExecutionResponse {
 export interface AvailableWorld {
   name: string;
   source: string;
+  scope: 'local' | 'global';
   type: 'directory' | 'archive';
   defaultLevelName: string;
+  displayPath: string;
   selected: boolean;
   copied: boolean;
 }
@@ -86,6 +88,7 @@ export class ServerManagementService {
   private readonly SERVERS_DIR: string;
   private readonly BASE_DIR: string;
   private readonly COMPOSE_PROJECT?: string;
+  private readonly RESERVED_SERVER_DIRS = new Set(['.world']);
 
   constructor(
     private readonly configService: ConfigService,
@@ -97,6 +100,7 @@ export class ServerManagementService {
     this.BASE_DIR = this.configService.get('baseDir');
     this.COMPOSE_PROJECT = this.configService.get<string>('composeProject')?.trim() || undefined;
     fs.ensureDirSync(this.SERVERS_DIR);
+    fs.ensureDirSync(this.getGlobalWorldsPath());
   }
 
   private validateServerId(serverId: string): boolean {
@@ -119,6 +123,10 @@ export class ServerManagementService {
     return path.join(this.getMcDataPath(serverId), 'worlds');
   }
 
+  private getGlobalWorldsPath(): string {
+    return path.join(this.SERVERS_DIR, '.world', 'worlds');
+  }
+
   private sanitizeLevelName(input: string): string {
     const trimmed = input.trim();
     if (!trimmed) return 'world';
@@ -137,25 +145,9 @@ export class ServerManagementService {
     return /\.(zip|tar|tar\.gz|tgz)$/i.test(fileName);
   }
 
-  private async hasLevelDat(worldPath: string, depth = 0): Promise<boolean> {
-    if (depth > 4) return false;
-
+  private async hasLevelDat(worldPath: string): Promise<boolean> {
     const directLevelDat = path.join(worldPath, 'level.dat');
-    if (await fs.pathExists(directLevelDat)) {
-      return true;
-    }
-
-    const entries = await fs.readdir(worldPath);
-    for (const entry of entries) {
-      const candidate = path.join(worldPath, entry);
-      const stat = await fs.stat(candidate);
-      if (!stat.isDirectory()) continue;
-      if (await this.hasLevelDat(candidate, depth + 1)) {
-        return true;
-      }
-    }
-
-    return false;
+    return fs.pathExists(directLevelDat);
   }
 
   private async worldWasCopied(serverId: string, levelName: string): Promise<boolean> {
@@ -163,57 +155,103 @@ export class ServerManagementService {
     return fs.pathExists(expectedLevelPath);
   }
 
-  async listAvailableWorlds(serverId: string, selectedWorldSource = '', selectedLevelName = 'world'): Promise<AvailableWorld[]> {
+  private async collectWorldSources(basePath: string, relativePath = '', depth = 0): Promise<Array<{ source: string; name: string; type: 'directory' | 'archive'; displayPath: string }>> {
+    if (depth > 8) return [];
+
+    const entries = await fs.readdir(basePath, { withFileTypes: true });
+    const worlds: Array<{ source: string; name: string; type: 'directory' | 'archive'; displayPath: string }> = [];
+
+    for (const entry of entries) {
+      const entryRelativePath = relativePath ? `${relativePath}/${entry.name}` : entry.name;
+      const entryFullPath = path.join(basePath, entry.name);
+
+      if (entry.isDirectory()) {
+        if (await this.hasLevelDat(entryFullPath)) {
+          worlds.push({
+            source: entryRelativePath,
+            name: entry.name,
+            type: 'directory',
+            displayPath: entryRelativePath,
+          });
+          continue;
+        }
+
+        const nestedWorlds = await this.collectWorldSources(entryFullPath, entryRelativePath, depth + 1);
+        worlds.push(...nestedWorlds);
+        continue;
+      }
+
+      if (!entry.isFile() || !this.isSupportedWorldArchive(entry.name)) {
+        continue;
+      }
+
+      worlds.push({
+        source: entryRelativePath,
+        name: entry.name,
+        type: 'archive',
+        displayPath: entryRelativePath,
+      });
+    }
+
+    return worlds;
+  }
+
+  async listAvailableWorlds(
+    serverId: string,
+    selectedWorldSource = '',
+    selectedLevelName = 'world',
+    selectedWorldScope: 'local' | 'global' = 'local',
+  ): Promise<AvailableWorld[]> {
     if (!this.validateServerId(serverId)) {
       return [];
     }
 
-    const worldsPath = this.getWorldsPath(serverId);
-    await fs.ensureDir(worldsPath);
+    const localWorldsPath = this.getWorldsPath(serverId);
+    const globalWorldsPath = this.getGlobalWorldsPath();
+    await fs.ensureDir(localWorldsPath);
+    await fs.ensureDir(globalWorldsPath);
 
-    const entries = await fs.readdir(worldsPath);
+    const localSources = await this.collectWorldSources(localWorldsPath);
+    const globalSources = await this.collectWorldSources(globalWorldsPath);
     const worlds: AvailableWorld[] = [];
 
-    for (const entryName of entries) {
-      const sourcePath = path.join(worldsPath, entryName);
-      const stat = await fs.stat(sourcePath);
-
-      if (stat.isDirectory()) {
-        const validWorldDir = await this.hasLevelDat(sourcePath);
-        if (!validWorldDir) continue;
-
-        const defaultLevelName = this.getDefaultLevelNameFromSource(entryName);
-        const levelName = selectedWorldSource === entryName ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
-
-        worlds.push({
-          name: entryName,
-          source: entryName,
-          type: 'directory',
-          defaultLevelName,
-          selected: selectedWorldSource === entryName,
-          copied: await this.worldWasCopied(serverId, levelName),
-        });
-        continue;
-      }
-
-      if (!stat.isFile() || !this.isSupportedWorldArchive(entryName)) {
-        continue;
-      }
-
-      const defaultLevelName = this.getDefaultLevelNameFromSource(entryName);
-      const levelName = selectedWorldSource === entryName ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
+    for (const candidate of localSources) {
+      const scope: 'local' | 'global' = 'local';
+      const defaultLevelName = this.getDefaultLevelNameFromSource(candidate.name);
+      const isSelected = selectedWorldSource === candidate.source && selectedWorldScope === scope;
+      const levelName = isSelected ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
 
       worlds.push({
-        name: entryName,
-        source: entryName,
-        type: 'archive',
+        name: candidate.name,
+        source: candidate.source,
+        scope,
+        type: candidate.type,
         defaultLevelName,
-        selected: selectedWorldSource === entryName,
+        displayPath: candidate.displayPath,
+        selected: isSelected,
         copied: await this.worldWasCopied(serverId, levelName),
       });
     }
 
-    worlds.sort((a, b) => a.name.localeCompare(b.name));
+    for (const candidate of globalSources) {
+      const scope: 'local' | 'global' = 'global';
+      const defaultLevelName = this.getDefaultLevelNameFromSource(candidate.name);
+      const isSelected = selectedWorldSource === candidate.source && selectedWorldScope === scope;
+      const levelName = isSelected ? this.sanitizeLevelName(selectedLevelName) : defaultLevelName;
+
+      worlds.push({
+        name: candidate.name,
+        source: candidate.source,
+        scope,
+        type: candidate.type,
+        defaultLevelName,
+        displayPath: candidate.displayPath,
+        selected: isSelected,
+        copied: await this.worldWasCopied(serverId, levelName),
+      });
+    }
+
+    worlds.sort((a, b) => a.displayPath.localeCompare(b.displayPath));
     return worlds;
   }
 
@@ -696,6 +734,9 @@ export class ServerManagementService {
       const directories = await fs.readdir(this.SERVERS_DIR);
       const serverDirectories = await Promise.all(
         directories.map(async (dir) => {
+          if (this.RESERVED_SERVER_DIRS.has(dir) || dir.startsWith('.')) {
+            return null;
+          }
           const fullPath = path.join(this.SERVERS_DIR, dir);
           const isDirectory = (await fs.stat(fullPath)).isDirectory();
           const hasDockerCompose = await fs.pathExists(this.getDockerComposePath(dir));
@@ -900,6 +941,9 @@ export class ServerManagementService {
       const directories = await fs.readdir(this.SERVERS_DIR);
       const serverDirectories = await Promise.all(
         directories.map(async (dir) => {
+          if (this.RESERVED_SERVER_DIRS.has(dir) || dir.startsWith('.')) {
+            return null;
+          }
           const fullPath = path.join(this.SERVERS_DIR, dir);
           const isDirectory = (await fs.stat(fullPath)).isDirectory();
           const hasDockerCompose = await fs.pathExists(this.getDockerComposePath(dir));

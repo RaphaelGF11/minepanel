@@ -63,6 +63,7 @@ export interface ServerConfig {
   gameMode: 'survival' | 'creative' | 'adventure' | 'spectator';
   seed?: string;
   worldSource?: string;
+  worldScope?: 'local' | 'global';
   worldLevelName?: string;
   forceWorldCopy?: boolean;
   levelType:
@@ -241,8 +242,10 @@ export interface ServerConfig {
 export interface AvailableWorld {
   name: string;
   source: string;
+  scope: 'local' | 'global';
   type: 'directory' | 'archive';
   defaultLevelName: string;
+  displayPath: string;
   selected: boolean;
   copied: boolean;
 }

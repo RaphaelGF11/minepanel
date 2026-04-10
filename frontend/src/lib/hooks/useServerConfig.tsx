@@ -26,6 +26,7 @@ const defaultConfig: ServerConfig = {
   gameMode: 'survival',
   seed: '',
   worldSource: '',
+  worldScope: 'local',
   worldLevelName: 'world',
   forceWorldCopy: false,
   levelType: 'minecraft:default',

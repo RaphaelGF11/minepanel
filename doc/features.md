@@ -81,6 +81,7 @@ Built-in browser for each server under `servers/<id>/mc-data`:
 Common paths:
 
 - Worlds source library for world switching: `mc-data/worlds/`
+- Shared World Library for all servers: `servers/.world/worlds/`
 - Active level data: `mc-data/<LEVEL>/`
 - Java mods: `mc-data/mods/`
 - Java plugins (Paper/Spigot/Purpur/etc): `mc-data/plugins/`

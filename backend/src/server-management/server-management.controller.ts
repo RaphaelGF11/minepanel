@@ -270,7 +270,7 @@ export class ServerManagementController {
       throw new BadRequestException('World source switching is only available for Java Edition servers');
     }
 
-    return this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName);
+    return this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName, config.worldScope ?? 'local');
   }
 
   @Put(':id/worlds/select')
@@ -293,10 +293,11 @@ export class ServerManagementController {
       throw new BadRequestException('worldLevelName is required');
     }
 
-    const availableWorlds = await this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName);
-    const selectedWorld = availableWorlds.find((world) => world.source === body.worldSource);
+    const selectedScope = body.worldScope ?? 'local';
+    const availableWorlds = await this.managementService.listAvailableWorlds(id, config.worldSource, config.worldLevelName, config.worldScope ?? 'local');
+    const selectedWorld = availableWorlds.find((world) => world.source === body.worldSource && world.scope === selectedScope);
     if (!selectedWorld) {
-      throw new BadRequestException('Selected world source was not found in server mc-data/worlds folder');
+      throw new BadRequestException('Selected world source was not found in local or world library sources');
     }
 
     const user = req.user as PayloadToken;
@@ -305,6 +306,7 @@ export class ServerManagementController {
 
     const nextConfig: Partial<ServerConfig> = {
       worldSource: body.worldSource,
+      worldScope: selectedScope,
       worldLevelName,
       forceWorldCopy: body.forceWorldCopy === true,
       cfSetLevelFrom: '',

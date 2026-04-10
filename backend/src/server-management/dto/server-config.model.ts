@@ -77,6 +77,10 @@ export class ServerConfigDto {
   @IsOptional()
   worldSource?: string;
 
+  @IsEnum(['local', 'global'])
+  @IsOptional()
+  worldScope?: 'local' | 'global';
+
   @IsString()
   @IsOptional()
   worldLevelName?: string;
